@@ -10,14 +10,9 @@
 <?import javafx.scene.text.Font?>
 
 <AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0"
-            styleClass="mainFxmlClass"
             xmlns="http://javafx.com/javafx/8.0.171"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="Controller.Mahran.MainvueController">
-
-    <stylesheets>
-        <URL value="@mainvue.css"/>
-    </stylesheets>
+            fx:controller="com.mycompany.parfeu.Controller.Mahran.MainvueController">
 
     <children>
         <BorderPane prefHeight="426.0" prefWidth="600.0"
@@ -39,19 +34,20 @@
                       BorderPane.alignment="CENTER">
 
                     <children>
-                        <Label text="Firewall Application"
-                               alignment="CENTER_RIGHT"
+                        <Label text="🔥 Firewall Application"
+                               alignment="CENTER"
                                prefHeight="40.0" prefWidth="591.0"
-                               style="-fx-background-color: #BBDEFB;">
+                               style="-fx-background-color: #BBDEFB; -fx-text-fill: #1976D2;">
                             <font>
                                 <Font name="System Bold" size="28.0"/>
                             </font>
                         </Label>
 
                         <Label text="Protect your network"
-                               alignment="CENTER_RIGHT"
+                               alignment="CENTER"
                                prefHeight="26.0" prefWidth="567.0"
-                               textAlignment="RIGHT">
+                               style="-fx-text-fill: white;"
+                               textAlignment="CENTER">
                             <font>
                                 <Font name="System Bold Italic" size="17.0"/>
                             </font>
@@ -66,47 +62,50 @@
                 <VBox alignment="CENTER"
                       prefHeight="320.0" prefWidth="504.0"
                       spacing="20.0"
-                      style="-fx-border-color: #1976D2; -fx-background-color: #000000; -fx-border-width: 2;"
+                      style="-fx-border-color: #1976D2; -fx-background-color: #FAFAFA; -fx-border-width: 2;"
                       BorderPane.alignment="CENTER">
 
                     <children>
 
-                        <Button text="Generate"
+                        <Button fx:id="generateBtn"
+                                text="📦 Generate Packet"
                                 alignment="CENTER"
                                 prefWidth="280.0" prefHeight="70.0"
                                 maxWidth="280.0"
-                                style="-fx-background-color: #3498DB;"
-                                textAlignment="CENTER">
+                                style="-fx-background-color: #3498DB; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10;">
                             <font>
-                                <Font name="System Bold Italic" size="20.0"/>
+                                <Font name="System Bold" size="20.0"/>
                             </font>
                         </Button>
 
-                        <Button text="Statistics"
+                        <Button fx:id="statisticsBtn"
+                                text="📊 Statistics"
                                 alignment="CENTER"
                                 prefWidth="280.0" prefHeight="70.0"
                                 maxWidth="280.0"
-                                style="-fx-background-color: #3498DB;">
+                                style="-fx-background-color: #27AE60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10;">
                             <font>
-                                <Font name="System Bold Italic" size="20.0"/>
+                                <Font name="System Bold" size="20.0"/>
                             </font>
                         </Button>
 
-                        <Button text="History"
+                        <Button fx:id="historyBtn"
+                                text="🔗 History"
                                 prefWidth="280.0" prefHeight="70.0"
                                 maxWidth="280.0"
-                                style="-fx-background-color: #3498DB;">
+                                style="-fx-background-color: #E67E22; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10;">
                             <font>
-                                <Font name="System Bold Italic" size="20.0"/>
+                                <Font name="System Bold" size="20.0"/>
                             </font>
                         </Button>
 
-                        <Button text="Configuration"
+                        <Button fx:id="configurationBtn"
+                                text="⚙️ Configuration"
                                 prefWidth="280.0" prefHeight="70.0"
                                 maxWidth="280.0"
-                                style="-fx-background-color: #3498DB;">
+                                style="-fx-background-color: #8E44AD; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10;">
                             <font>
-                                <Font name="System Bold Italic" size="20.0"/>
+                                <Font name="System Bold" size="20.0"/>
                             </font>
                         </Button>
 

@@ -279,4 +279,7 @@ public class StatisticsManager {
             this.protocol = protocol;
         }
     }
+    public Map<String, ProtocolStatistics> getProtocolStatistics() {
+        return new HashMap<>(protocolStats);
+    }
 }

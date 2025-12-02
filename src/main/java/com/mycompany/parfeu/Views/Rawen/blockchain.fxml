@@ -11,13 +11,17 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="AnchorPane" prefHeight="755.0" prefWidth="815.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="firewallsimulation.FXMLDocumentController">
+<AnchorPane id="AnchorPane" prefHeight="755.0" prefWidth="815.0" 
+            xmlns="http://javafx.com/javafx/8.0.171" 
+            xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="com.mycompany.parfeu.Controller.Rawen.BlockchainController">
    <children>
       <BorderPane prefHeight="770.0" prefWidth="829.0">
          <top>
-            <VBox alignment="CENTER" prefHeight="68.0" prefWidth="829.0" spacing="10.0" style="-fx-background-color: #1976D2;" BorderPane.alignment="CENTER">
+            <VBox alignment="CENTER" prefHeight="68.0" prefWidth="829.0" spacing="10.0" 
+                  style="-fx-background-color: #1976D2;" BorderPane.alignment="CENTER">
                <children>
-                  <Label text="HISTORY" textFill="WHITE">
+                  <Label text="🔗 HISTORY" textFill="WHITE">
                      <font>
                         <Font name="System Bold" size="28.0" />
                      </font>
@@ -34,18 +38,22 @@
             </VBox>
          </top>
          <center>
-            <ScrollPane prefHeight="200.0" prefWidth="200.0" stylesheets="@blockchain.css" BorderPane.alignment="CENTER">
+            <ScrollPane prefHeight="200.0" prefWidth="200.0" 
+                       style="-fx-background-color: #ecf0f1;" 
+                       BorderPane.alignment="CENTER">
                <content>
                   <VBox fx:id="CENTERVBOXH" prefHeight="559.0" prefWidth="826.0" spacing="15.0">
                      <children>
-                        <HBox fx:id="inforow" alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="30.0" style="-fx-background-color: #ffffff; -fx-border-color: #2196F3;">
+                        <HBox fx:id="inforow" alignment="CENTER" prefHeight="100.0" prefWidth="200.0" 
+                              spacing="30.0" 
+                              style="-fx-background-color: #ffffff; -fx-border-color: #2196F3; -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10;">
                            <children>
                               <Label text="Blocks: 0" textFill="#1976d2">
                                  <font>
                                     <Font name="System Bold" size="15.0" />
                                  </font>
                               </Label>
-                              <Label stylesheets="@blockchain.css" text="Status: -" textFill="#1976d2">
+                              <Label text="Status: -" textFill="#1976d2">
                                  <font>
                                     <Font name="System Bold" size="15.0" />
                                  </font>
@@ -71,13 +79,25 @@
             </ScrollPane>
          </center>
          <bottom>
-            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="200.0" BorderPane.alignment="CENTER">
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="200.0" 
+                  style="-fx-background-color: #34495e;" 
+                  BorderPane.alignment="CENTER">
+               <padding>
+                  <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+               </padding>
                <children>
-                  <Button mnemonicParsing="false" prefWidth="100.0" style="-fx-background-color: #607D8B;" text="← Back" textFill="WHITE" />
-                  <Button mnemonicParsing="false" prefWidth="100.0" style="-fx-background-color: #2196F3;" text="🔄 Refresh" textFill="WHITE" />
-                  <Button mnemonicParsing="false" prefWidth="100.0" style="-fx-background-color: #4CAF50;" text="✓ Verify" textFill="WHITE" />
+                  <Button fx:id="backBtn" mnemonicParsing="false" prefWidth="100.0" 
+                          style="-fx-background-color: #607D8B; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" 
+                          text="← Back" />
+                  <Button fx:id="refreshBtn" mnemonicParsing="false" prefWidth="100.0" 
+                          style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" 
+                          text="🔄 Refresh" />
+                  <Button fx:id="verifyBtn" mnemonicParsing="false" prefWidth="100.0" 
+                          style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" 
+                          text="✓ Verify" />
                </children>
             </HBox>
-         </bottom></BorderPane>
+         </bottom>
+      </BorderPane>
    </children>
 </AnchorPane>
