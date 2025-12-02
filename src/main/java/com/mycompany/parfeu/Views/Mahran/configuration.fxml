@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:id="rootPane" prefWidth="650" prefHeight="750" style="-fx-background-color: linear-gradient(to bottom, #e6f0ff, #99c2ff);">
+
+    <!-- Header -->
+    <VBox fx:id="headerBox" prefHeight="80" spacing="10" AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" style="-fx-background-color: linear-gradient(to right, #3366ff, #6699ff); -fx-alignment: center; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8,0,0,2);">
+        <Label text="Pare-feu Configurations" style="-fx-text-fill: white;">
+            <font>
+                <Font name="Arial Black" size="24"/>
+            </font>
+        </Label>
+    </VBox>
+
+    <!-- Scrollable Content -->
+    <ScrollPane fx:id="scrollPane" AnchorPane.topAnchor="80" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" fitToWidth="true" style="-fx-background-color: transparent;">
+        <VBox spacing="20">
+            <padding>
+                <Insets top="25" right="25" bottom="25" left="25"/>
+            </padding>
+
+            <!-- Seuils de décision -->
+            <TitledPane text="Seuils de décision" expanded="true" style="-fx-background-color: linear-gradient(to right, #80c1ff, #3399ff); -fx-text-fill: white; -fx-font-weight: bold; -fx-border-radius: 12; -fx-background-radius: 12; -fx-border-color: #3399ff; -fx-border-width: 2;">
+                <GridPane hgap="15" vgap="15">
+                    <padding>
+                        <Insets top="15" right="15" bottom="15" left="15"/>
+                    </padding>
+                    <Label text="Blocage:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                    <Spinner fx:id="blockThresholdSpinner" min="1" max="10" initialValue="3" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                    
+                    <Label text="Alerte:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                    <Spinner fx:id="alertThresholdSpinner" min="1" max="10" initialValue="2" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                </GridPane>
+            </TitledPane>
+
+            <!-- Limites de taille -->
+            <TitledPane text="Taille des paquets" expanded="true" style="-fx-background-color: linear-gradient(to right, #a6ffcc, #33cc99); -fx-text-fill: white; -fx-font-weight: bold; -fx-border-radius: 12; -fx-background-radius: 12; -fx-border-color: #33cc99; -fx-border-width: 2;">
+                <GridPane hgap="15" vgap="15">
+                    <padding>
+                        <Insets top="15" right="15" bottom="15" left="15"/>
+                    </padding>
+                    <Label text="Taille min:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                    <TextField fx:id="minPacketSizeField" text="20" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                    
+                    <Label text="Taille max:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                    <TextField fx:id="maxPacketSizeField" text="65535" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                </GridPane>
+            </TitledPane>
+
+            <!-- Mots suspects -->
+            <TitledPane text="Mots suspects" expanded="true" style="-fx-background-color: linear-gradient(to right, #ff9999, #ff4d4d); -fx-text-fill: white; -fx-font-weight: bold; -fx-border-radius: 12; -fx-background-radius: 12; -fx-border-color: #ff4d4d; -fx-border-width: 2;">
+                <VBox spacing="10">
+                    <padding>
+                        <Insets top="15" right="15" bottom="15" left="15"/>
+                    </padding>
+                    <ListView fx:id="suspiciousWordsList" prefHeight="120" style="-fx-background-color: #ffe6e6; -fx-border-radius: 8; -fx-background-radius: 8;"/>
+                    <HBox spacing="10">
+                        <TextField fx:id="newSuspiciousWordField" promptText="Ajouter un mot"/>
+                        <Button text="Ajouter" fx:id="addWordButton" style="-fx-background-color: #ff6666; -fx-text-fill: white; -fx-background-radius: 8;"/>
+                        <Button text="Supprimer" fx:id="removeWordButton" style="-fx-background-color: #cc0000; -fx-text-fill: white; -fx-background-radius: 8;"/>
+                    </HBox>
+                </VBox>
+            </TitledPane>
+
+            <!-- IPs blacklistees -->
+            <TitledPane text="IPs blacklistees" expanded="true" style="-fx-background-color: linear-gradient(to right, #9999ff, #4d4dff); -fx-text-fill: white; -fx-font-weight: bold; -fx-border-radius: 12; -fx-background-radius: 12; -fx-border-color: #4d4dff; -fx-border-width: 2;">
+                <VBox spacing="10">
+                    <padding>
+                        <Insets top="15" right="15" bottom="15" left="15"/>
+                    </padding>
+                    <ListView fx:id="blacklistedIPsList" prefHeight="120" style="-fx-background-color: #e6e6ff; -fx-border-radius: 8; -fx-background-radius: 8;"/>
+                    <HBox spacing="10">
+                        <TextField fx:id="newIPField" promptText="Ajouter une IP"/>
+                        <Button text="Ajouter" fx:id="addIPButton" style="-fx-background-color: #6666ff; -fx-text-fill: white; -fx-background-radius: 8;"/>
+                        <Button text="Supprimer" fx:id="removeIPButton" style="-fx-background-color: #3333cc; -fx-text-fill: white; -fx-background-radius: 8;"/>
+                    </HBox>
+                </VBox>
+            </TitledPane>
+
+            <!-- Ports surveilles -->
+            <TitledPane text="Ports surveilles" expanded="true" style="-fx-background-color: linear-gradient(to right, #ffff99, #ffcc33); -fx-text-fill: black; -fx-font-weight: bold; -fx-border-radius: 12; -fx-background-radius: 12; -fx-border-color: #ff9900; -fx-border-width: 2;">
+                <VBox spacing="10">
+                    <padding>
+                        <Insets top="15" right="15" bottom="15" left="15"/>
+                    </padding>
+                    <ListView fx:id="monitoredPortsList" prefHeight="120" style="-fx-background-color: #fff8cc; -fx-border-radius: 8; -fx-background-radius: 8;"/>
+                    <HBox spacing="10">
+                        <TextField fx:id="newPortField" promptText="Port (0-65535)"/>
+                        <Button text="Ajouter" fx:id="addPortButton" style="-fx-background-color: #ffcc33; -fx-text-fill: black; -fx-background-radius: 8;"/>
+                        <Button text="Supprimer" fx:id="removePortButton" style="-fx-background-color: #ff9900; -fx-text-fill: white; -fx-background-radius: 8;"/>
+                    </HBox>
+                </VBox>
+            </TitledPane>
+
+        </VBox>
+    </ScrollPane>
+
+</AnchorPane>
