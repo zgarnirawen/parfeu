@@ -8,6 +8,7 @@
     <groupId>com.mycompany</groupId>
     <artifactId>parfeu</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -18,6 +19,7 @@
     </properties>
 
     <dependencies>
+        <!-- JavaFX -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
@@ -32,8 +34,7 @@
 
     <build>
         <plugins>
-
-            <!-- Plugin de compilation -->
+            <!-- Compiler Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -43,18 +44,14 @@
                 </configuration>
             </plugin>
 
-            <!-- Plugin JavaFX Maven -->
+            <!-- JavaFX Maven Plugin -->
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>com.mycompany.parfeu.App</mainClass>
-                    <options>
-                        <option>--module-path</option>
-                        <option>${env.JAVAFX_HOME}/lib</option>
-                        <option>--add-modules=javafx.controls,javafx.fxml</option>
-                    </options>
+                    <!-- ⚠️ POINT DE DÉMARRAGE PRINCIPAL -->
+                    <mainClass>com.mycompany.parfeu.MainApp</mainClass>
                 </configuration>
                 <executions>
                     <execution>
@@ -66,6 +63,19 @@
                 </executions>
             </plugin>
 
+            <!-- JAR Plugin avec manifest -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.mycompany.parfeu.MainApp</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

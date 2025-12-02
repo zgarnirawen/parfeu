@@ -1,26 +1,28 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/javafx/FXMLController.java to edit this template
- */
 package com.mycompany.parfeu.Controller.Rawen;
+
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.util.ResourceBundle;
-import javafx.fxml.Initializable;
 
 /**
- * FXML Controller class
- *
- * @author ZGARNI
+ * Contrôleur pour la vue Blockchain (historique).
  */
 public class BlockchainController implements Initializable {
 
-    /**
-     * Initializes the controller class.
-     */
+    @FXML
+    private VBox blocksContainer;
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
-    }    
-    
+        loadBlockchain();
+        System.out.println("✓ BlockchainController initialisé");
+    }
+
+    private void loadBlockchain() {
+        // TODO: Charger les blocs de la blockchain
+        // Pour l'instant, afficher un message par défaut
+    }
 }
