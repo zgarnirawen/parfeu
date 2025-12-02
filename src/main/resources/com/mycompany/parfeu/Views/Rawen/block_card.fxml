@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="blockCardRoot" alignment="TOP_CENTER" prefWidth="320" spacing="12" style="-fx-background-color: #e3e8ff; -fx-border-color: #3a54a1; -fx-border-width: 1.5px; -fx-border-radius: 8px; -fx-background-radius: 8px; -fx-padding: 16;" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+
+    <!-- Header : Block Index -->
+    <Label fx:id="lblBlockIndex" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #1a2e8a;" text="Block #" />
+   <Label fx:id="indexbloc" />
+
+    <Separator />
+
+    <!-- Body : vertical VBox for decisions, prevHash, timestamp, hash -->
+    <VBox alignment="TOP_LEFT" spacing="10">
+
+        <!-- Decisions container: fill dynamically -->
+        <VBox fx:id="decisionsBox" spacing="5" style="-fx-padding: 0 0 8 0;" />
+
+        <Label style="-fx-font-weight: bold; -fx-text-fill: #3950a1;" text="Previous Hash:" />
+        <Label fx:id="lblPrevHash" style="-fx-font-family: monospace; -fx-font-size: 13px; -fx-text-fill: #253a7a;" text="-" wrapText="true" />
+
+        <Label style="-fx-font-weight: bold; -fx-text-fill: #3950a1;" text="Timestamp:" />
+        <Label fx:id="lblTimestamp" style="-fx-text-fill: #253a7a;" text="-" />
+
+        <Label style="-fx-font-weight: bold; -fx-text-fill: #3950a1;" text="Hash:" />
+        <Label fx:id="lblHash" style="-fx-font-family: monospace; -fx-font-size: 13px; -fx-text-fill: #253a7a;" text="-" wrapText="true" />
+
+    </VBox>
+
+</VBox>

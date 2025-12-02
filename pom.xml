@@ -8,23 +8,31 @@
     <groupId>com.mycompany</groupId>
     <artifactId>parfeu</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- JavaFX version -->
+        <javafx.version>19</javafx.version>
+
+        <!-- Chemin vers le SDK JavaFX -->
+        <javafx.sdk.path>C:\Users\ZGARNI\OneDrive\Documents\Bureau\javafx-sdk-19</javafx.sdk.path>
+
+        <!-- Compile avec JDK 17 -->
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.compiler.release>17</maven.compiler.release>
-        <javafx.version>19</javafx.version>
+
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencies>
-        <!-- JavaFX -->
+        <!-- JavaFX Core -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
             <version>${javafx.version}</version>
         </dependency>
+
+        <!-- JavaFX FXML -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
@@ -34,7 +42,7 @@
 
     <build>
         <plugins>
-            <!-- Compiler Plugin -->
+            <!-- Java Compiler -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -50,20 +58,12 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <!-- ⚠️ POINT DE DÉMARRAGE PRINCIPAL -->
-                    <mainClass>com.mycompany.parfeu.MainApp</mainClass>
+                    <mainClass>com.mycompany.parfeu.App</mainClass>
+                    <modulePath>${javafx.sdk.path}\lib</modulePath>
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>default-cli</id>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
 
-            <!-- JAR Plugin avec manifest -->
+            <!-- JAR Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -71,12 +71,11 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.mycompany.parfeu.MainApp</mainClass>
+                            <mainClass>com.mycompany.parfeu.App</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-
 </project>
