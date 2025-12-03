@@ -1,20 +1,14 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.parfeu.Model.Rawen.blockchain;
 
 import com.mycompany.parfeu.Model.Rawen.decision.DecisionResult;
-
 import java.security.MessageDigest;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * Represente un bloc immuable dans la blockchain.
- * Contient une liste de decisions du pare-feu.
- * 
- * Concept Java : Record (Java 16+)
+ * Block immuable avec informations complètes des paquets.
+ * Stocke toutes les informations nécessaires pour l'historique.
  * 
  * @author ZGARNI
  */
@@ -23,14 +17,20 @@ public record Block(
     List<DecisionResult> decisions,
     String previousHash,
     long timestamp,
-    String hash
+    String hash,
+    // Informations supplémentaires pour l'historique
+    String srcIP,
+    String destIP,
+    int srcPort,
+    int destPort,
+    String protocol,
+    String payload,
+    int size,
+    LocalDateTime packetTimestamp
 ) {
 
     /**
-     * Constructeur pour creer un nouveau bloc.
-     * @param index numero du bloc
-     * @param decisions liste des decisions a stocker
-     * @param previousHash hash du bloc precedent
+     * Constructeur pour créer un nouveau bloc avec décisions.
      */
     public Block(int index, List<DecisionResult> decisions, String previousHash) {
         this(
@@ -38,7 +38,36 @@ public record Block(
             Collections.unmodifiableList(decisions),
             previousHash,
             System.currentTimeMillis(),
-            calculateHash(index, decisions, previousHash, System.currentTimeMillis())
+            calculateHash(index, decisions, previousHash, System.currentTimeMillis()),
+            extractSrcIP(decisions),
+            extractDestIP(decisions),
+            extractSrcPort(decisions),
+            extractDestPort(decisions),
+            extractProtocol(decisions),
+            extractPayload(decisions),
+            extractSize(decisions),
+            extractPacketTimestamp(decisions)
+        );
+    }
+    
+    /**
+     * Constructeur pour le bloc Genesis.
+     */
+    public static Block createGenesisBlock() {
+        return new Block(
+            0,
+            Collections.emptyList(),
+            "0",
+            System.currentTimeMillis(),
+            calculateHash(0, Collections.emptyList(), "0", System.currentTimeMillis()),
+            "0.0.0.0",
+            "0.0.0.0",
+            0,
+            0,
+            "GENESIS",
+            "Genesis Block",
+            0,
+            LocalDateTime.now()
         );
     }
 
@@ -68,10 +97,71 @@ public record Block(
             throw new RuntimeException("Erreur de hachage SHA-256 : " + e.getMessage());
         }
     }
+    
+    // Méthodes d'extraction des informations du premier paquet
+    private static String extractSrcIP(List<DecisionResult> decisions) {
+        return decisions.isEmpty() ? "0.0.0.0" : decisions.get(0).getPacket().getSrcIP();
+    }
+    
+    private static String extractDestIP(List<DecisionResult> decisions) {
+        return decisions.isEmpty() ? "0.0.0.0" : decisions.get(0).getPacket().getDestIP();
+    }
+    
+    private static int extractSrcPort(List<DecisionResult> decisions) {
+        return decisions.isEmpty() ? 0 : decisions.get(0).getPacket().getSrcPort();
+    }
+    
+    private static int extractDestPort(List<DecisionResult> decisions) {
+        return decisions.isEmpty() ? 0 : decisions.get(0).getPacket().getDestPort();
+    }
+    
+    private static String extractProtocol(List<DecisionResult> decisions) {
+        return decisions.isEmpty() ? "NONE" : decisions.get(0).getPacket().getProtocol();
+    }
+    
+    private static String extractPayload(List<DecisionResult> decisions) {
+        return decisions.isEmpty() ? "" : decisions.get(0).getPacket().getPayload();
+    }
+    
+    private static int extractSize(List<DecisionResult> decisions) {
+        return decisions.isEmpty() ? 0 : decisions.get(0).getPacket().getSize();
+    }
+    
+    private static LocalDateTime extractPacketTimestamp(List<DecisionResult> decisions) {
+        return decisions.isEmpty() ? LocalDateTime.now() : decisions.get(0).getPacket().getTimestamp();
+    }
 
     @Override
     public String toString() {
-        return String.format("Block #%d [hash=%s, decisions=%d, timestamp=%d]",
-            index, hash.substring(0, 10) + "...", decisions.size(), timestamp);
+        return String.format("Block #%d [%s:%d -> %s:%d | %s | hash=%s, decisions=%d, timestamp=%d]",
+            index, srcIP, srcPort, destIP, destPort, protocol,
+            hash.substring(0, Math.min(10, hash.length())) + "...", 
+            decisions.size(), timestamp);
+    }
+    
+    /**
+     * Convertit le bloc en format CSV pour historique.
+     */
+    public String toCSV() {
+        return String.format("%d,%s,%s,%d,%d,%s,%d,%d,%s,%s,%s",
+            index,
+            srcIP,
+            destIP,
+            srcPort,
+            destPort,
+            protocol,
+            size,
+            timestamp,
+            packetTimestamp,
+            previousHash,
+            hash
+        );
+    }
+    
+    /**
+     * En-tête CSV pour l'historique.
+     */
+    public static String getCSVHeader() {
+        return "Index,Source IP,Destination IP,Source Port,Destination Port,Protocol,Size,Block Timestamp,Packet Timestamp,Previous Hash,Hash";
     }
 }
