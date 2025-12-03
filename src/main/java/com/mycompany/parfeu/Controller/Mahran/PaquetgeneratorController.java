@@ -35,6 +35,9 @@ public class PaquetgeneratorController implements Initializable {
     private Button firstAnalyzeButton;
     
     @FXML
+    private Button backBtn;
+    
+    @FXML
     private TextArea packetDisplayArea;
     
     @FXML
@@ -71,12 +74,25 @@ public class PaquetgeneratorController implements Initializable {
     }
 
     private void setupButtonActions() {
+        // Bouton Back
+        if (backBtn != null) {
+            backBtn.setOnAction(event -> {
+                try {
+                    App.loadMainMenu();
+                } catch (IOException e) {
+                    showError("Erreur de navigation", "Impossible de retourner au menu principal");
+                    e.printStackTrace();
+                }
+            });
+        }
+
         // Bouton Paquet Sain
         ps.setOnAction(event -> {
             try {
                 currentPacket = packetSelector.selectRandomPacket(false);
                 displayPacket(currentPacket, "🟢 PAQUET SAIN");
                 firstAnalyzeResultArea.clear();
+                firstAnalyzeResultArea.setPromptText("Cliquez sur 'Analyser le Paquet' pour voir les résultats.");
             } catch (Exception e) {
                 showError("Erreur", "Impossible de générer un paquet sain: " + e.getMessage());
             }
@@ -88,6 +104,7 @@ public class PaquetgeneratorController implements Initializable {
                 currentPacket = packetSelector.selectRandomPacket(true);
                 displayPacket(currentPacket, "🔴 PAQUET MALICIEUX");
                 firstAnalyzeResultArea.clear();
+                firstAnalyzeResultArea.setPromptText("Cliquez sur 'Analyser le Paquet' pour voir les résultats.");
             } catch (Exception e) {
                 showError("Erreur", "Impossible de générer un paquet malicieux: " + e.getMessage());
             }
@@ -96,7 +113,7 @@ public class PaquetgeneratorController implements Initializable {
         // Bouton Première Analyse
         firstAnalyzeButton.setOnAction(event -> {
             if (currentPacket == null) {
-                showWarning("Aucun paquet", "Veuillez d'abord générer un paquet!");
+                showWarning("Aucun paquet", "Veuillez d'abord générer un paquet en cliquant sur 'Paquet Sain' ou 'Paquet Malicieux'!");
                 return;
             }
             
@@ -113,16 +130,22 @@ public class PaquetgeneratorController implements Initializable {
      */
     private void displayPacket(Packet packet, String type) {
         StringBuilder sb = new StringBuilder();
-        sb.append("═══════════════════════════════════════\n");
-        sb.append("         ").append(type).append("\n");
-        sb.append("═══════════════════════════════════════\n\n");
-        sb.append("📍 Source      : ").append(packet.getSrcIP()).append(":").append(packet.getSrcPort()).append("\n");
-        sb.append("📍 Destination : ").append(packet.getDestIP()).append(":").append(packet.getDestPort()).append("\n");
-        sb.append("🔌 Protocole   : ").append(packet.getProtocol()).append("\n");
-        sb.append("📦 Taille      : ").append(packet.getSize()).append(" bytes\n");
-        sb.append("🕒 Timestamp   : ").append(packet.getTimestamp()).append("\n\n");
-        sb.append("📝 Payload:\n");
-        sb.append(packet.getPayload()).append("\n");
+        sb.append("╔═══════════════════════════════════════════════════════════╗\n");
+        sb.append("║              ").append(type).append("              ║\n");
+        sb.append("╚═══════════════════════════════════════════════════════════╝\n\n");
+        
+        sb.append("🌐 INFORMATIONS RÉSEAU\n");
+        sb.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+        sb.append("  Source      : ").append(packet.getSrcIP()).append(":").append(packet.getSrcPort()).append("\n");
+        sb.append("  Destination : ").append(packet.getDestIP()).append(":").append(packet.getDestPort()).append("\n");
+        sb.append("  Protocole   : ").append(packet.getProtocol()).append("\n");
+        sb.append("  Taille      : ").append(packet.getSize()).append(" bytes\n");
+        sb.append("  Timestamp   : ").append(packet.getTimestamp()).append("\n\n");
+        
+        sb.append("📝 CONTENU (PAYLOAD)\n");
+        sb.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+        sb.append(packet.getPayload()).append("\n\n");
+        sb.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
         
         packetDisplayArea.setText(sb.toString());
     }
@@ -136,29 +159,60 @@ public class PaquetgeneratorController implements Initializable {
         DecisionResult result = decisionEngine.decide(currentPacket, signals);
         
         StringBuilder sb = new StringBuilder();
-        sb.append("═══════════════════════════════════════\n");
-        sb.append("      RÉSULTAT DE L'ANALYSE\n");
-        sb.append("═══════════════════════════════════════\n\n");
+        sb.append("╔═══════════════════════════════════════════════════════════╗\n");
+        sb.append("║            🔍 RÉSULTAT DE L'ANALYSE                       ║\n");
+        sb.append("╚═══════════════════════════════════════════════════════════╝\n\n");
         
-        sb.append("⚖️  Action     : ").append(result.getAction().getSymbol()).append("\n");
-        sb.append("📊 Score       : ").append(result.getTotalScore()).append("/10\n");
-        sb.append("🎯 Niveau      : ").append(decisionEngine.evaluateRiskLevel(result.getTotalScore())).append("\n\n");
+        // Décision
+        String actionSymbol = result.getAction().getSymbol();
+        String actionColor = getActionEmoji(actionSymbol);
+        sb.append("⚖️  DÉCISION : ").append(actionColor).append(" ").append(actionSymbol).append("\n");
+        sb.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n");
         
-        sb.append("📋 Raison:\n");
-        sb.append("   ").append(result.getReason()).append("\n\n");
+        // Score et niveau
+        sb.append("📊 ÉVALUATION\n");
+        sb.append("  Score de menace : ").append(result.getTotalScore()).append("/10\n");
+        sb.append("  Niveau de risque: ").append(decisionEngine.evaluateRiskLevel(result.getTotalScore())).append("\n\n");
         
+        // Raison
+        sb.append("📋 RAISON\n");
+        sb.append("  ").append(result.getReason()).append("\n\n");
+        
+        // Signaux détectés
         if (!signals.isEmpty()) {
-            sb.append("⚠️  Signaux détectés (").append(signals.size()).append("):\n");
+            sb.append("⚠️  SIGNAUX DÉTECTÉS (").append(signals.size()).append(")\n");
+            sb.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
             for (int i = 0; i < signals.size(); i++) {
-                sb.append("   ").append(i + 1).append(". ")
-                  .append(signals.get(i).getDescription())
-                  .append(" [Score: ").append(signals.get(i).getScore()).append("]\n");
+                DetectionSignal signal = signals.get(i);
+                sb.append("  ").append(i + 1).append(". ")
+                  .append(signal.getDescription())
+                  .append("\n     └─ Score: ").append(signal.getScore())
+                  .append(" | Niveau: ").append(signal.getThreatLevel())
+                  .append("\n\n");
             }
         } else {
-            sb.append("✅ Aucun signal de menace détecté\n");
+            sb.append("✅ AUCUN SIGNAL DE MENACE\n");
+            sb.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+            sb.append("  Le paquet semble légitime et ne présente aucune\n");
+            sb.append("  caractéristique suspecte.\n\n");
         }
         
+        sb.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+        
         firstAnalyzeResultArea.setText(sb.toString());
+    }
+
+    /**
+     * Retourne l'emoji correspondant à l'action.
+     */
+    private String getActionEmoji(String action) {
+        return switch (action) {
+            case "[BLOCK]" -> "🚫";
+            case "[ALERT]" -> "⚠️";
+            case "[LOG]" -> "📝";
+            case "[OK]" -> "✅";
+            default -> "❓";
+        };
     }
 
     private void showError(String title, String content) {

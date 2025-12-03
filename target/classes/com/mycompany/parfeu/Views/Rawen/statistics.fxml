@@ -6,7 +6,7 @@
 <?import javafx.geometry.*?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="Controller.Rawen.StatisticsController"
+            fx:controller="com.mycompany.parfeu.Controller.Rawen.StatisticsController"
             prefWidth="900" prefHeight="700"
             style="-fx-background-color: #ecf0f1;">
 
@@ -16,7 +16,7 @@
             <padding>
                 <Insets top="20" right="20" bottom="20" left="20"/>
             </padding>
-            <Label text="Statistics"
+            <Label text="📊 Statistics"
                    style="-fx-font-size: 32; -fx-font-weight: bold; -fx-text-fill: white;"/>
             <Label text="Firewall Performance Metrics"
                    style="-fx-font-size: 14; -fx-text-fill: #bdc3c7;"/>
@@ -26,7 +26,6 @@
     <!-- CONTENT -->
     <center>
         <ScrollPane fitToWidth="true" style="-fx-background-color: #ecf0f1;">
-            <!-- Important: mettre directement le contenu — ne pas utiliser <content> wrapper -->
             <VBox spacing="20">
                 <padding>
                     <Insets top="20" right="20" bottom="20" left="20"/>
@@ -91,12 +90,12 @@
                         <PieChart fx:id="pieChart" prefWidth="400" prefHeight="300"
                                   title="Actions Distribution"/>
 
-                        <!-- BAR CHART -->
-                       <TableView fx:id="statsTable" prefWidth="400" prefHeight="300">
-    <columns>
-        <TableColumn text="Protocol" fx:id="colProtocol" prefWidth="200"/>
-        <TableColumn text="Packets" fx:id="colPackets" prefWidth="200"/>
-    </columns>
+                        <!-- TABLE VIEW -->
+                        <TableView fx:id="statsTable" prefWidth="400" prefHeight="300">
+                            <columns>
+                                <TableColumn text="Protocol" fx:id="colProtocol" prefWidth="200"/>
+                                <TableColumn text="Packets" fx:id="colPackets" prefWidth="200"/>
+                            </columns>
                         </TableView>
                     </HBox>
                 </VBox>
@@ -119,21 +118,19 @@
         </ScrollPane>
     </center>
 
-    <!-- BOTTOM BUTTONS -->
+    <!-- BOTTOM BUTTONS - AVEC fx:id -->
     <bottom>
         <HBox alignment="CENTER" spacing="20" style="-fx-background-color: #34495e;">
             <padding>
                 <Insets top="20" right="20" bottom="20" left="20"/>
             </padding>
 
-            <Button text="← Back" prefWidth="150" prefHeight="40"
-                    style="-fx-background-color: #95a5a6; -fx-text-fill: white;"/>
-            <Button text="🔄 Refresh" prefWidth="150" prefHeight="40"
-                    style="-fx-background-color: #3498db; -fx-text-fill: white;"
-                    />
-            <Button text="📤 Export" prefWidth="150" prefHeight="40"
-                    style="-fx-background-color: #27ae60; -fx-text-fill: white;"
-                   />
+            <Button fx:id="backBtn" text="← Back" prefWidth="150" prefHeight="40"
+                    style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-font-weight: bold;"/>
+            <Button fx:id="refreshBtn" text="🔄 Refresh" prefWidth="150" prefHeight="40"
+                    style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold;"/>
+            <Button fx:id="exportBtn" text="📤 Export" prefWidth="150" prefHeight="40"
+                    style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;"/>
         </HBox>
     </bottom>
 
