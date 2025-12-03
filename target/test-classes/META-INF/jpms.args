@@ -1,4 +1,0 @@
---patch-module
-com.mycompany.parfeu=_
---add-reads
-com.mycompany.parfeu=ALL-UNNAMED

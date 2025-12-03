@@ -3,7 +3,6 @@ package com.mycompany.parfeu.Controller.Mahran;
 import com.mycompany.parfeu.App;
 import com.mycompany.parfeu.Model.Mahran.config.FirewallConfig;
 import com.mycompany.parfeu.Model.Mahran.generator.Packet;
-import com.mycompany.parfeu.Model.Mahran.generator.PacketSelector;
 import com.mycompany.parfeu.Model.Rawen.analyzer.DetectionSignal;
 import com.mycompany.parfeu.Model.Rawen.analyzer.PacketAnalyzer;
 import com.mycompany.parfeu.Model.Rawen.decision.DecisionEngine;
@@ -43,7 +42,6 @@ public class PaquetgeneratorController implements Initializable {
     @FXML
     private TextArea firstAnalyzeResultArea;
 
-    private PacketSelector packetSelector;
     private Packet currentPacket;
     private FirewallConfig config;
     private PacketAnalyzer analyzer;
@@ -61,7 +59,6 @@ public class PaquetgeneratorController implements Initializable {
             );
             decisionEngine = new DecisionEngine(config);
             
-            packetSelector = new PacketSelector();
             packetSelector.loadPacketFiles();
             
             setupButtonActions();
