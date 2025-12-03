@@ -1,39 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.Spinner?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="800" prefWidth="900" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.parfeu.Controller.Mahran.GuidedPacketInputController">
+<AnchorPane prefHeight="800" prefWidth="900" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="com.mycompany.parfeu.Controller.Mahran.GuidedPacketInputController"
+            style="-fx-background-color: linear-gradient(to bottom, #0f2027, #203a43, #2c5364);">
 
-    <BorderPane prefHeight="800.0" prefWidth="900.0" style="-fx-background-color: #E3F2FD;">
+    <BorderPane prefHeight="800.0" prefWidth="900.0">
         <!-- HEADER -->
         <top>
-            <VBox alignment="CENTER" prefHeight="80.0" style="-fx-background-color: #1976D2;" BorderPane.alignment="CENTER">
+            <VBox alignment="CENTER" prefHeight="100.0" style="-fx-background-color: linear-gradient(to right, #FF6B35, #F7931E);">
                 <padding>
-                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                    <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
                 </padding>
-                <Label text="📝 Saisie  de Paquet" textFill="WHITE">
+                <Label text="🛡️ PACKET CREATION WIZARD" textFill="WHITE">
                     <font>
-                        <Font name="System Bold" size="28.0" />
+                        <Font name="System Bold" size="32.0" />
                     </font>
                 </Label>
-                <Label text="Créez votre paquet personnalisé" textFill="#bbdefb">
+                <Label text="Create and analyze custom network packets" textFill="#FFE8D6">
                     <font>
                         <Font name="System Bold Italic" size="16.0" />
                     </font>
@@ -43,136 +31,113 @@
 
         <!-- CENTER -->
         <center>
-            <ScrollPane fitToWidth="true" BorderPane.alignment="CENTER">
-                <VBox spacing="20.0">
+            <ScrollPane fitToWidth="true" style="-fx-background: transparent;">
+                <VBox spacing="25.0">
                     <padding>
                         <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
                     </padding>
 
-                    <!-- FORMULAIRE DE SAISIE -->
-                    <VBox spacing="15.0" style="-fx-background-color: white; -fx-border-color: #2196F3; -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10;">
+                    <!-- PACKET FORM -->
+                    <VBox spacing="20.0" style="-fx-background-color: rgba(255,255,255,0.95); -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 15, 0, 0, 5);">
                         <padding>
-                            <Insets bottom="20" left="20" right="20" top="20" />
+                            <Insets bottom="25" left="25" right="25" top="25" />
                         </padding>
 
-                        <Label text="🌐 Informations Réseau" textFill="#1976d2">
+                        <Label text="🌐 Network Information" textFill="#FF6B35">
                             <font>
-                                <Font name="System Bold" size="20.0" />
+                                <Font name="System Bold" size="22.0" />
                             </font>
                         </Label>
 
-                        <GridPane hgap="15.0" vgap="15.0">
-                            <!-- IP Source -->
-                            <Label text="IP Source:" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                                <font><Font size="14.0" /></font>
+                        <GridPane hgap="20.0" vgap="15.0">
+                            <Label text="Source IP:" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                <font><Font name="System Bold" size="14.0" /></font>
                             </Label>
-                            <TextField fx:id="srcIPField" prefWidth="200" promptText="Ex: 192.168.1.100" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                            <TextField fx:id="srcIPField" promptText="192.168.1.100" 
+                                      style="-fx-background-radius: 8; -fx-border-color: #FF6B35; -fx-border-radius: 8; -fx-padding: 8;"
+                                      GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                            <!-- IP Destination -->
-                            <Label text="IP Destination:" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                                <font><Font size="14.0" /></font>
+                            <Label text="Destination IP:" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                <font><Font name="System Bold" size="14.0" /></font>
                             </Label>
-                            <TextField fx:id="destIPField" prefWidth="200" promptText="Ex: 203.0.113.10" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                            <TextField fx:id="destIPField" promptText="203.0.113.10"
+                                      style="-fx-background-radius: 8; -fx-border-color: #FF6B35; -fx-border-radius: 8; -fx-padding: 8;"
+                                      GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-                            <!-- Port Source -->
-                            <Label text="Port Source:" GridPane.columnIndex="2" GridPane.rowIndex="0">
-                                <font><Font size="14.0" /></font>
+                            <Label text="Source Port:" GridPane.columnIndex="2" GridPane.rowIndex="0">
+                                <font><Font name="System Bold" size="14.0" /></font>
                             </Label>
-                            <Spinner fx:id="srcPortSpinner" editable="true" prefWidth="120" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                            <Spinner fx:id="srcPortSpinner" editable="true" prefWidth="130"
+                                    style="-fx-background-radius: 8;"
+                                    GridPane.columnIndex="3" GridPane.rowIndex="0" />
 
-                            <!-- Port Destination -->
-                            <Label text="Port Destination:" GridPane.columnIndex="2" GridPane.rowIndex="1">
-                                <font><Font size="14.0" /></font>
+                            <Label text="Destination Port:" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                                <font><Font name="System Bold" size="14.0" /></font>
                             </Label>
-                            <Spinner fx:id="destPortSpinner" editable="true" prefWidth="120" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                            <Spinner fx:id="destPortSpinner" editable="true" prefWidth="130"
+                                    style="-fx-background-radius: 8;"
+                                    GridPane.columnIndex="3" GridPane.rowIndex="1" />
 
-                            <!-- Protocole -->
-                            <Label text="Protocole:" GridPane.columnIndex="0" GridPane.rowIndex="2">
-                                <font><Font size="14.0" /></font>
+                            <Label text="Protocol:" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                                <font><Font name="System Bold" size="14.0" /></font>
                             </Label>
-                            <ComboBox fx:id="protocolCombo" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                     <columnConstraints>
-                        <ColumnConstraints />
-                        <ColumnConstraints />
-                        <ColumnConstraints />
-                        <ColumnConstraints />
-                     </columnConstraints>
-                     <rowConstraints>
-                        <RowConstraints />
-                        <RowConstraints />
-                        <RowConstraints />
-                     </rowConstraints>
+                            <ComboBox fx:id="protocolCombo" prefWidth="200"
+                                     style="-fx-background-radius: 8;"
+                                     GridPane.columnIndex="1" GridPane.rowIndex="2" />
                         </GridPane>
 
-                        <Separator />
+                        <Separator style="-fx-background-color: #FF6B35;" />
 
-                        <!-- Payload -->
-                        <Label text="📦 Contenu du Paquet (Payload)" textFill="#1976d2">
+                        <Label text="📦 Payload Content" textFill="#FF6B35">
                             <font>
-                                <Font name="System Bold" size="16.0" />
+                                <Font name="System Bold" size="18.0" />
                             </font>
                         </Label>
-                        <TextArea fx:id="payloadArea" prefHeight="100" promptText="Entrez le contenu du paquet (ex: GET /index.html HTTP/1.1)" style="-fx-font-family: 'Courier New'; -fx-font-size: 13;" />
+                        <TextArea fx:id="payloadArea" prefHeight="100" promptText="Enter packet payload..."
+                                 style="-fx-font-family: 'Courier New'; -fx-font-size: 13; -fx-background-radius: 8; -fx-border-color: #FF6B35; -fx-border-radius: 8;" />
 
-                        <Separator />
+                        <Separator style="-fx-background-color: #FF6B35;" />
 
-                        <!-- Type de Paquet -->
-                        <Label text="⚠Type de Paquet" textFill="#1976d2">
+                        <Label text="⚠️ Packet Type" textFill="#FF6B35">
                             <font>
-                                <Font name="System Bold" size="16.0" />
+                                <Font name="System Bold" size="18.0" />
                             </font>
                         </Label>
 
-                        <HBox alignment="CENTER_LEFT" spacing="20.0">
-                            <CheckBox fx:id="maliciousCheckbox" text="Paquet Malicieux">
-                                <font><Font size="14.0" /></font>
+                        <HBox alignment="CENTER_LEFT" spacing="25.0">
+                            <CheckBox fx:id="maliciousCheckbox" text="Malicious Packet"
+                                     style="-fx-font-size: 14; -fx-font-weight: bold;">
                             </CheckBox>
-                            
-                            <Label text="Type d'attaque:">
-                                <font><Font size="14.0" /></font>
+                            <Label text="Attack Type:">
+                                <font><Font name="System Bold" size="14.0" /></font>
                             </Label>
-                            <ComboBox fx:id="attackTypeCombo" prefWidth="200" />
+                            <ComboBox fx:id="attackTypeCombo" prefWidth="200"
+                                     style="-fx-background-radius: 8;" />
                         </HBox>
 
-                        <!-- Bouton Générer -->
-                        <Button fx:id="generateButton" prefHeight="50" prefWidth="250" style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-font-size: 16;" text="🎯 Générer le Paquet">
+                        <Button fx:id="generateButton" prefHeight="55" prefWidth="300" 
+                                text="🎯 GENERATE PACKET"
+                                style="-fx-background-color: linear-gradient(to right, #FF6B35, #F7931E); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 12; -fx-font-size: 16; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 3);">
                             <VBox.margin>
-                                <Insets top="10" />
+                                <Insets top="15" />
                             </VBox.margin>
                         </Button>
                     </VBox>
 
-                    <!-- AFFICHAGE DU PAQUET -->
-                    <VBox spacing="10.0" style="-fx-background-color: white; -fx-border-color: #4CAF50; -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10;">
+                    <!-- PACKET DISPLAY -->
+                    <VBox spacing="15.0" style="-fx-background-color: rgba(255,255,255,0.95); -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 15, 0, 0, 5);">
                         <padding>
-                            <Insets bottom="15" left="15" right="15" top="15" />
+                            <Insets bottom="20" left="20" right="20" top="20" />
                         </padding>
-                        <Label text="📋 Paquet Généré" textFill="#1976d2">
+                        <Label text="📋 Generated Packet" textFill="#2c5364">
                             <font>
-                                <Font name="System Bold" size="18.0" />
+                                <Font name="System Bold" size="20.0" />
                             </font>
                         </Label>
-                        <TextArea fx:id="packetDisplayArea" editable="false" prefHeight="150.0" promptText="Le paquet généré s'affichera ici..." style="-fx-background-color: #f5f5f5; -fx-font-family: 'Courier New'; -fx-font-size: 13;" />
+                        <TextArea fx:id="packetDisplayArea" editable="false" prefHeight="180.0"
+                                 style="-fx-background-color: #F5F5F5; -fx-font-family: 'Courier New'; -fx-font-size: 12; -fx-background-radius: 8; -fx-border-color: #2c5364; -fx-border-radius: 8;"
+                                 promptText="Generated packet will appear here..." />
                     </VBox>
-
-                    <!-- BOUTON ANALYSER -->
-                    <Button fx:id="analyzeButton" prefHeight="50" prefWidth="250" style="-fx-background-color: #FF9800; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-font-size: 16;" text="🔍 Analyser le Paquet" />
-
-                    <!-- RÉSULTATS DE L'ANALYSE -->
-                    <VBox spacing="10.0" style="-fx-background-color: white; -fx-border-color: #9C27B0; -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10;">
-                        <padding>
-                            <Insets bottom="15" left="15" right="15" top="15" />
-                        </padding>
-                        <Label text="📊 Résultat de l'Analyse" textFill="#1976d2">
-                            <font>
-                                <Font name="System Bold" size="18.0" />
-                            </font>
-                        </Label>
-                        <TextArea fx:id="analysisResultArea" editable="false" prefHeight="200.0" promptText="Les résultats de l'analyse s'afficheront ici..." style="-fx-background-color: #f5f5f5; -fx-font-family: 'Courier New'; -fx-font-size: 13;" />
-                    </VBox>
-
-                    <!-- BOUTON SAUVEGARDER -->
-                    <Button fx:id="saveButton" prefHeight="50" prefWidth="300" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-font-size: 16;" text="💾 Sauvegarder dans la Blockchain" />
 
                 </VBox>
             </ScrollPane>
@@ -180,11 +145,14 @@
 
         <!-- BOTTOM -->
         <bottom>
-            <HBox alignment="CENTER" spacing="20.0" style="-fx-background-color: #34495e;" BorderPane.alignment="CENTER">
+            <HBox alignment="CENTER" spacing="20.0" style="-fx-background-color: #1a1a2e;">
                 <padding>
                     <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                 </padding>
-                <Button fx:id="backBtn" prefHeight="40" prefWidth="200" style="-fx-background-color: #607D8B; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-font-size: 14;" text="← Retour au Menu" />
+                <Button fx:id="backBtn" text="← BACK TO MENU" prefWidth="180" prefHeight="45"
+                        style="-fx-background-color: #16213e; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-font-size: 14;" />
+                <Button fx:id="initialFilterBtn" text="➡️ INITIAL FILTERING" prefWidth="200" prefHeight="45"
+                        style="-fx-background-color: linear-gradient(to right, #FF6B35, #F7931E); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-font-size: 14; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 3);" />
             </HBox>
         </bottom>
     </BorderPane>
