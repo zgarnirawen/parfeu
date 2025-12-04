@@ -5,7 +5,7 @@ import java.util.Date;
 
 /**
  * Classe de données pour l'affichage dans le TableView.
- * 🔥 TOUS LES GETTERS DOIVENT ÊTRE PUBLICS pour PropertyValueFactory
+ * 🔥 VERSION CORRIGÉE : Affiche les décisions textuelles au lieu du nombre
  */
 public class BlockchainTableData {
     
@@ -15,8 +15,10 @@ public class BlockchainTableData {
     private final String destIP;
     private final String protocol;
     private final int decisionsCount;
+    private final String decisions;  // 🔥 NOUVEAU : Texte des décisions
     private final String hashShort;
     private final String hashFull;
+    private final boolean isGenesis;  // 🔥 NOUVEAU : Flag pour Genesis
 
     public BlockchainTableData(Block block) {
         this.index = block.index();
@@ -30,6 +32,12 @@ public class BlockchainTableData {
         this.protocol = block.protocol();
         this.decisionsCount = block.decisions().size();
         
+        // 🔥 NOUVEAU : Extraire les actions des décisions
+        this.decisions = block.getDecisionActions();
+        
+        // 🔥 NOUVEAU : Détecter le Genesis
+        this.isGenesis = block.index() == 0 && "0.0.0.0".equals(block.srcIP());
+        
         // Hash tronqué
         String hash = block.hash();
         this.hashFull = hash;
@@ -38,7 +46,8 @@ public class BlockchainTableData {
         // 🔥 DEBUG
         System.out.println("BlockchainTableData créé: #" + index + 
                          " | " + srcIP + " -> " + destIP + 
-                         " | " + protocol);
+                         " | " + protocol +
+                         " | Decisions: " + decisions);
     }
 
     private String truncateHash(String hash) {
@@ -73,6 +82,16 @@ public class BlockchainTableData {
         return decisionsCount;
     }
 
+    /**
+     * 🔥 NOUVEAU : Retourne le texte des décisions pour affichage
+     */
+    public String getDecisions() {
+        if (isGenesis) {
+            return "GENESIS";
+        }
+        return decisions;
+    }
+
     public String getHashShort() {
         return hashShort;
     }
@@ -81,9 +100,13 @@ public class BlockchainTableData {
         return hashFull;
     }
 
+    public boolean isGenesis() {
+        return isGenesis;
+    }
+
     @Override
     public String toString() {
         return "Block #" + index + " [" + timestamp + "] " + 
-               srcIP + " -> " + destIP + " (" + protocol + ")";
+               srcIP + " -> " + destIP + " (" + protocol + ") - " + decisions;
     }
 }

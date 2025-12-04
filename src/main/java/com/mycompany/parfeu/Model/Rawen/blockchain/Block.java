@@ -8,9 +8,7 @@ import java.util.List;
 
 /**
  * Block immuable avec informations complètes des paquets.
- * Stocke toutes les informations nécessaires pour l'historique.
- * 
- * @author ZGARNI
+ * 🔥 VERSION CORRIGÉE : Support pour restauration depuis CSV sans recalcul de hash
  */
 public record Block(
     int index,
@@ -28,6 +26,43 @@ public record Block(
     int size,
     LocalDateTime packetTimestamp
 ) {
+
+    /**
+     * 🔥 NOUVEAU : Constructeur pour RESTAURATION depuis CSV
+     * Accepte le hash existant SANS le recalculer
+     */
+    public Block(
+        int index,
+        List<DecisionResult> decisions,
+        String previousHash,
+        long timestamp,
+        String hash,  // 🔥 Hash depuis CSV
+        String srcIP,
+        String destIP,
+        int srcPort,
+        int destPort,
+        String protocol,
+        String payload,
+        int size,
+        LocalDateTime packetTimestamp,
+        boolean fromCSV  // 🔥 Flag pour différencier la restauration
+    ) {
+        this(
+            index,
+            Collections.unmodifiableList(decisions),
+            previousHash,
+            timestamp,
+            hash,  // 🔥 UTILISER le hash fourni
+            srcIP,
+            destIP,
+            srcPort,
+            destPort,
+            protocol,
+            payload,
+            size,
+            packetTimestamp
+        );
+    }
 
     /**
      * Constructeur pour créer un nouveau bloc avec décisions.
@@ -54,12 +89,13 @@ public record Block(
      * Constructeur pour le bloc Genesis.
      */
     public static Block createGenesisBlock() {
+        long timestamp = System.currentTimeMillis();
         return new Block(
             0,
             Collections.emptyList(),
             "0",
-            System.currentTimeMillis(),
-            calculateHash(0, Collections.emptyList(), "0", System.currentTimeMillis()),
+            timestamp,
+            calculateHash(0, Collections.emptyList(), "0", timestamp),
             "0.0.0.0",
             "0.0.0.0",
             0,
@@ -129,6 +165,20 @@ public record Block(
     
     private static LocalDateTime extractPacketTimestamp(List<DecisionResult> decisions) {
         return decisions.isEmpty() ? LocalDateTime.now() : decisions.get(0).getPacket().getTimestamp();
+    }
+
+    /**
+     * 🔥 NOUVELLE MÉTHODE : Extrait les actions des décisions pour affichage
+     */
+    public String getDecisionActions() {
+        if (decisions.isEmpty()) {
+            return "NONE";
+        }
+        
+        return decisions.stream()
+            .map(d -> d.getAction().toString())
+            .reduce((a, b) -> a + ", " + b)
+            .orElse("NONE");
     }
 
     @Override

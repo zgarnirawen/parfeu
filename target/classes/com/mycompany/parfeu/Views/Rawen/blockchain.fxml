@@ -85,7 +85,7 @@
                     </VBox>
                 </HBox>
 
-                <!-- TABLE VIEW - 🔥 COULEURS CORRIGÉES -->
+                <!-- TABLE VIEW - 🔥 COLONNE DECISIONS MODIFIÉE -->
                 <VBox spacing="10" 
                       style="-fx-background-color: rgba(255,255,255,0.95); -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 3);">
                     <padding>
@@ -98,30 +98,24 @@
                         </font>
                     </Label>
 
-                    <!-- 🔥 TABLEAU AVEC STYLE CORRIGÉ -->
+                    <!-- 🔥 TABLEAU AVEC COLONNE DECISIONS MODIFIÉE -->
                     <TableView fx:id="blockchainTable" prefHeight="450" 
                               style="-fx-background-color: white;">
                         <columns>
-                            <TableColumn fx:id="colBlockIndex" prefWidth="80" text="Block #">
-                            </TableColumn>
+                            <TableColumn fx:id="colBlockIndex" prefWidth="60" text="Block #" />
                             
-                            <TableColumn fx:id="colTimestamp" prefWidth="150" text="Timestamp">
-                            </TableColumn>
+                            <TableColumn fx:id="colTimestamp" prefWidth="150" text="Timestamp" />
                             
-                            <TableColumn fx:id="colSrcIP" prefWidth="120" text="Source IP">
-                            </TableColumn>
+                            <TableColumn fx:id="colSrcIP" prefWidth="110" text="Source IP" />
                             
-                            <TableColumn fx:id="colDestIP" prefWidth="120" text="Dest IP">
-                            </TableColumn>
+                            <TableColumn fx:id="colDestIP" prefWidth="110" text="Dest IP" />
                             
-                            <TableColumn fx:id="colProtocol" prefWidth="80" text="Protocol">
-                            </TableColumn>
+                            <TableColumn fx:id="colProtocol" prefWidth="70" text="Protocol" />
                             
-                            <TableColumn fx:id="colDecisions" prefWidth="80" text="Decisions">
-                            </TableColumn>
+                            <!-- 🔥 COLONNE DECISIONS MODIFIÉE : Plus large pour afficher le texte -->
+                            <TableColumn fx:id="colDecisions" prefWidth="150" text="Decisions" />
                             
-                            <TableColumn fx:id="colHash" prefWidth="200" text="Hash">
-                            </TableColumn>
+                            <TableColumn fx:id="colHash" prefWidth="180" text="Hash" />
                         </columns>
                         <columnResizePolicy>
                             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

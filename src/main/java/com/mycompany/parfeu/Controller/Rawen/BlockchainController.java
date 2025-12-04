@@ -22,6 +22,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * 🔥 VERSION CORRIGÉE - Affichage des décisions en texte
+ */
 public class BlockchainController implements Initializable {
 
     @FXML private Label totalBlocksLabel;
@@ -34,7 +37,7 @@ public class BlockchainController implements Initializable {
     @FXML private TableColumn<BlockchainTableData, String> colSrcIP;
     @FXML private TableColumn<BlockchainTableData, String> colDestIP;
     @FXML private TableColumn<BlockchainTableData, String> colProtocol;
-    @FXML private TableColumn<BlockchainTableData, Integer> colDecisions;
+    @FXML private TableColumn<BlockchainTableData, String> colDecisions;  // 🔥 MODIFIÉ : String au lieu de Integer
     @FXML private TableColumn<BlockchainTableData, String> colHash;
 
     @FXML private Button backBtn;
@@ -68,7 +71,7 @@ public class BlockchainController implements Initializable {
     }
 
     /**
-     * 🔥 CONFIGURATION CRITIQUE DES COLONNES
+     * 🔥 CONFIGURATION CRITIQUE DES COLONNES AVEC DECISIONS EN TEXTE
      */
     private void setupTableColumns() {
         System.out.println("🔧 Configuration des colonnes...");
@@ -85,7 +88,10 @@ public class BlockchainController implements Initializable {
         colSrcIP.setCellValueFactory(new PropertyValueFactory<>("srcIP"));
         colDestIP.setCellValueFactory(new PropertyValueFactory<>("destIP"));
         colProtocol.setCellValueFactory(new PropertyValueFactory<>("protocol"));
-        colDecisions.setCellValueFactory(new PropertyValueFactory<>("decisionsCount"));
+        
+        // 🔥 MODIFIÉ : Utiliser "decisions" au lieu de "decisionsCount"
+        colDecisions.setCellValueFactory(new PropertyValueFactory<>("decisions"));
+        
         colHash.setCellValueFactory(new PropertyValueFactory<>("hashShort"));
 
         System.out.println("  ✓ CellValueFactory configurées");
@@ -113,12 +119,18 @@ public class BlockchainController implements Initializable {
                     setText("");
                 } else {
                     // Texte NOIR sur tous les fonds
-                    if (item.getIndex() == 0) {
-                        // Genesis - vert
-                        setStyle("-fx-background-color: #d4edda; -fx-text-fill: #000000;");
-                    } else if (item.getDecisionsCount() == 0) {
-                        // Vide - gris
-                        setStyle("-fx-background-color: #f8f9fa; -fx-text-fill: #000000;");
+                    if (item.isGenesis()) {
+                        // Genesis - vert pâle
+                        setStyle("-fx-background-color: #C8E6C9; -fx-text-fill: #000000; -fx-font-weight: bold;");
+                    } else if (item.getDecisions().contains("DROP")) {
+                        // Paquets bloqués - rouge pâle
+                        setStyle("-fx-background-color: #FFCDD2; -fx-text-fill: #000000;");
+                    } else if (item.getDecisions().contains("ALERT")) {
+                        // Alertes - orange pâle
+                        setStyle("-fx-background-color: #FFE0B2; -fx-text-fill: #000000;");
+                    } else if (item.getDecisions().contains("ACCEPT")) {
+                        // Acceptés - vert très pâle
+                        setStyle("-fx-background-color: #E8F5E9; -fx-text-fill: #000000;");
                     } else {
                         // Normal - blanc
                         setStyle("-fx-background-color: #ffffff; -fx-text-fill: #000000;");
@@ -133,7 +145,7 @@ public class BlockchainController implements Initializable {
         colSrcIP.setStyle("-fx-text-fill: black;");
         colDestIP.setStyle("-fx-text-fill: black;");
         colProtocol.setStyle("-fx-text-fill: black;");
-        colDecisions.setStyle("-fx-text-fill: black;");
+        colDecisions.setStyle("-fx-text-fill: black; -fx-font-weight: bold;");  // 🔥 Bold pour les décisions
         colHash.setStyle("-fx-text-fill: black;");
         
         System.out.println("  ✓ Styles appliqués (texte noir)");
@@ -164,7 +176,8 @@ public class BlockchainController implements Initializable {
             System.out.println("   ✓ Bloc #" + block.index() + 
                              " | " + data.getSrcIP() + 
                              " -> " + data.getDestIP() + 
-                             " | " + data.getProtocol());
+                             " | " + data.getProtocol() +
+                             " | Decisions: " + data.getDecisions());  // 🔥 NOUVEAU
         }
         
         System.out.println("   📊 Total dans tableData: " + tableData.size());
