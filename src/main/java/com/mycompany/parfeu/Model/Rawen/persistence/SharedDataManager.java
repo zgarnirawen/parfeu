@@ -132,84 +132,88 @@ public class SharedDataManager {
     /**
      * 🔥 RECONSTRUCTION BLOCKCHAIN depuis historique_blocs.csv
      */
-    private void reconstructBlockchainFromCSV() {
-        try {
-            System.out.println("\n🔗 Blockchain...");
-            
-            List<String> lines = storage.loadBlockHistory();
-            
-            if (lines.isEmpty()) {
-                System.out.println("  ℹ️  Vide (genesis uniquement)");
-                System.out.println("  📊 Taille: " + blockchain.getSize() + " bloc");
-                return;
-            }
-            
-            System.out.println("  📂 " + lines.size() + " lignes dans CSV");
-            
-            int reconstructed = 0;
-            
-            for (String line : lines) {
-                if (line.trim().isEmpty()) continue;
-                
-                try {
-                    // Format CSV: Index,Source IP,Destination IP,Source Port,Destination Port,Protocol,Size,Block Timestamp,Packet Timestamp,Previous Hash,Hash
-                    String[] parts = line.split(",");
-                    
-                    if (parts.length < 6) {
-                        System.err.println("  ⚠️  Ligne invalide (trop courte)");
-                        continue;
-                    }
-                    
-                    // Parser les données
-                    int index = Integer.parseInt(parts[0].trim());
-                    
-                    // Skip genesis (index 0, déjà créé)
-                    if (index == 0) {
-                        System.out.println("  ⏭️  Genesis skippé (index 0)");
-                        continue;
-                    }
-                    
-                    String srcIP = parts[1].trim();
-                    String destIP = parts[2].trim();
-                    int srcPort = Integer.parseInt(parts[3].trim());
-                    int destPort = Integer.parseInt(parts[4].trim());
-                    String protocol = parts[5].trim();
-                    
-                    System.out.println("  📦 Bloc #" + index + " : " + srcIP + ":" + srcPort + " -> " + destIP + ":" + destPort + " (" + protocol + ")");
-                    
-                    // Créer un paquet
-                    Packet packet = new PaquetSimple(
-                        srcIP, destIP, srcPort, destPort,
-                        protocol, "Données restaurées", 
-                        LocalDateTime.now()
-                    );
-                    
-                    // Créer une décision
-                    DecisionResult decision = new DecisionResult(
-                        packet,
-                        new ArrayList<>(),
-                        0,
-                        Actions.LOG,
-                        "Restauré depuis CSV historique"
-                    );
-                    
-                    // 🔥 AJOUTER (sans sauvegarder car isReconstructing=true)
-                    addDecision(decision);
-                    reconstructed++;
-                    
-                } catch (Exception e) {
-                    System.err.println("  ⚠️  Erreur ligne: " + e.getMessage());
-                }
-            }
-            
-            System.out.println("  ✓ " + reconstructed + " blocs reconstruits");
-            System.out.println("  📊 Taille totale: " + blockchain.getSize() + " blocs");
-            
-        } catch (DatabaseException e) {
-            System.out.println("  ⚠️  Pas d'historique trouvé");
+    /**
+ * 🔥 RECONSTRUCTION BLOCKCHAIN depuis historique_blocs.csv
+ */
+private void reconstructBlockchainFromCSV() {
+    try {
+        System.out.println("\n🔗 Blockchain...");
+        
+        List<String> lines = storage.loadBlockHistory();
+        
+        if (lines.isEmpty()) {
+            System.out.println("  ℹ️  Vide (genesis uniquement)");
+            System.out.println("  📊 Taille: " + blockchain.getSize() + " bloc");
+            return;
         }
+        
+        System.out.println("  📂 " + lines.size() + " lignes dans CSV");
+        
+        int reconstructed = 0;
+        
+        for (String line : lines) {
+            if (line.trim().isEmpty() || line.startsWith("Index,")) {
+                continue; // Skip header
+            }
+            
+            try {
+                String[] parts = line.split(",");
+                
+                if (parts.length < 6) {
+                    System.err.println("  ⚠️  Ligne invalide (trop courte)");
+                    continue;
+                }
+                
+                int index = Integer.parseInt(parts[0].trim());
+                
+                // 🔥 NE PAS SKIPPER le bloc 0 si c'est un vrai bloc avec des données
+                String srcIP = parts[1].trim();
+                String destIP = parts[2].trim();
+                
+                // Si c'est le genesis (0.0.0.0), on le skip
+                if (index == 0 && "0.0.0.0".equals(srcIP)) {
+                    System.out.println("  ⏭️  Genesis skippé (index 0)");
+                    continue;
+                }
+                
+                int srcPort = Integer.parseInt(parts[3].trim());
+                int destPort = Integer.parseInt(parts[4].trim());
+                String protocol = parts[5].trim();
+                
+                System.out.println("  📦 Bloc #" + index + " : " + srcIP + ":" + srcPort + 
+                                 " -> " + destIP + ":" + destPort + " (" + protocol + ")");
+                
+                Packet packet = new PaquetSimple(
+                    srcIP, destIP, srcPort, destPort,
+                    protocol, "Données restaurées", 
+                    LocalDateTime.now()
+                );
+                
+                DecisionResult decision = new DecisionResult(
+                    packet,
+                    new ArrayList<>(),
+                    0,
+                    Actions.LOG,
+                    "Restauré depuis CSV historique"
+                );
+                
+                // 🔥 AJOUTER (sans sauvegarder car isReconstructing=true)
+                addDecision(decision);
+                reconstructed++;
+                
+            } catch (Exception e) {
+                System.err.println("  ⚠️  Erreur ligne: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+        
+        System.out.println("  ✓ " + reconstructed + " blocs reconstruits");
+        System.out.println("  📊 Taille totale: " + blockchain.getSize() + " blocs");
+        
+    } catch (DatabaseException e) {
+        System.out.println("  ⚠️  Pas d'historique trouvé");
     }
-    
+}
     /**
      * Sauvegarde tout
      */
