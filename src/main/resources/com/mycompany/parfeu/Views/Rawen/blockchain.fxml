@@ -13,12 +13,12 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="800" prefWidth="950" style="-fx-background-color: linear-gradient(to bottom, #0f2027, #203a43, #2c5364);" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.parfeu.Controller.Rawen.BlockchainController">
+<AnchorPane prefHeight="800" prefWidth="950" style="-fx-background-color: linear-gradient(to bottom, #0D47A1, #1565C0, #1976D2);" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.parfeu.Controller.Rawen.BlockchainController">
 
     <BorderPane prefHeight="800.0" prefWidth="950.0">
         <!-- HEADER -->
         <top>
-            <VBox alignment="CENTER" prefHeight="100.0" style="-fx-background-color: linear-gradient(to right, #ffa751, #ffe259);">
+            <VBox alignment="CENTER" prefHeight="100.0" style="-fx-background-color: linear-gradient(to right, #FF6F00, #FF8F00);">
                 <padding>
                     <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
                 </padding>
@@ -27,7 +27,7 @@
                         <Font name="System Bold" size="32.0" />
                     </font>
                 </Label>
-                <Label text="Immutable ledger of firewall decisions" textFill="#FFF8DC">
+                <Label text="Immutable ledger of firewall decisions" textFill="#FFE0B2">
                     <font>
                         <Font name="System Bold Italic" size="16.0" />
                     </font>
@@ -52,29 +52,29 @@
                         <Label style="-fx-text-fill: #7f8c8d;" text="📦 TOTAL BLOCKS">
                             <font><Font name="System Bold" size="12.0" /></font>
                         </Label>
-                        <Label fx:id="totalBlocksLabel" style="-fx-text-fill: #ffa751;" text="0">
+                        <Label fx:id="totalBlocksLabel" style="-fx-text-fill: #1976D2;" text="0">
                             <font><Font name="System Bold" size="28.0" /></font>
                         </Label>
                     </VBox>
 
-                    <Separator orientation="VERTICAL" />
+                    <Separator orientation="VERTICAL" style="-fx-background-color: #1976D2;" />
 
                     <VBox alignment="CENTER" spacing="5">
                         <Label style="-fx-text-fill: #7f8c8d;" text="✅ CHAIN STATUS">
                             <font><Font name="System Bold" size="12.0" /></font>
                         </Label>
-                        <Label fx:id="chainStatusLabel" style="-fx-text-fill: #27ae60;" text="VALID">
+                        <Label fx:id="chainStatusLabel" style="-fx-text-fill: #2196F3;" text="VALID">
                             <font><Font name="System Bold" size="20.0" /></font>
                         </Label>
                     </VBox>
 
-                    <Separator orientation="VERTICAL" />
+                    <Separator orientation="VERTICAL" style="-fx-background-color: #FF6F00;" />
 
                     <VBox alignment="CENTER" spacing="5">
                         <Label style="-fx-text-fill: #7f8c8d;" text="🕐 LAST UPDATE">
                             <font><Font name="System Bold" size="12.0" /></font>
                         </Label>
-                        <Label fx:id="lastUpdateLabel" style="-fx-text-fill: #2c3e50;" text="-">
+                        <Label fx:id="lastUpdateLabel" style="-fx-text-fill: #FF6F00;" text="-">
                             <font><Font name="System Bold" size="14.0" /></font>
                         </Label>
                     </VBox>
@@ -86,51 +86,51 @@
                         <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
                     </padding>
 
-                    <Label text="📊 Block Records" textFill="#ffa751">
+                    <Label text="📊 Block Records" textFill="#1976D2">
                         <font>
                             <Font name="System Bold" size="20.0" />
                         </font>
                     </Label>
 
-                    <TableView fx:id="blockchainTable" prefHeight="450" style="-fx-background-color: #FAFAFA; -fx-background-radius: 8;">
+                    <TableView fx:id="blockchainTable" prefHeight="450" style="-fx-background-color: #E3F2FD; -fx-background-radius: 8;">
                         <columns>
-                            <TableColumn fx:id="colBlockIndex" prefWidth="80" text="Block #">
+                            <TableColumn fx:id="colBlockIndex" prefWidth="80" text="Block #" style="-fx-background-color: #BBDEFB;">
                                 <cellValueFactory>
                                     <javafx.scene.control.cell.PropertyValueFactory property="index" />
                                 </cellValueFactory>
                             </TableColumn>
                             
-                            <TableColumn fx:id="colTimestamp" prefWidth="150" text="Timestamp">
+                            <TableColumn fx:id="colTimestamp" prefWidth="150" text="Timestamp" style="-fx-background-color: #BBDEFB;">
                                 <cellValueFactory>
                                     <javafx.scene.control.cell.PropertyValueFactory property="timestamp" />
                                 </cellValueFactory>
                             </TableColumn>
                             
-                            <TableColumn fx:id="colSrcIP" prefWidth="120" text="Source IP">
+                            <TableColumn fx:id="colSrcIP" prefWidth="120" text="Source IP" style="-fx-background-color: #FFE0B2;">
                                 <cellValueFactory>
                                     <javafx.scene.control.cell.PropertyValueFactory property="srcIP" />
                                 </cellValueFactory>
                             </TableColumn>
                             
-                            <TableColumn fx:id="colDestIP" prefWidth="120" text="Dest IP">
+                            <TableColumn fx:id="colDestIP" prefWidth="120" text="Dest IP" style="-fx-background-color: #FFE0B2;">
                                 <cellValueFactory>
                                     <javafx.scene.control.cell.PropertyValueFactory property="destIP" />
                                 </cellValueFactory>
                             </TableColumn>
                             
-                            <TableColumn fx:id="colProtocol" prefWidth="80" text="Protocol">
+                            <TableColumn fx:id="colProtocol" prefWidth="80" text="Protocol" style="-fx-background-color: #BBDEFB;">
                                 <cellValueFactory>
                                     <javafx.scene.control.cell.PropertyValueFactory property="protocol" />
                                 </cellValueFactory>
                             </TableColumn>
                             
-                            <TableColumn fx:id="colDecisions" prefWidth="80" text="Decisions">
+                            <TableColumn fx:id="colDecisions" prefWidth="80" text="Decisions" style="-fx-background-color: #FFE0B2;">
                                 <cellValueFactory>
                                     <javafx.scene.control.cell.PropertyValueFactory property="decisionsCount" />
                                 </cellValueFactory>
                             </TableColumn>
                             
-                            <TableColumn fx:id="colHash" prefWidth="200" text="Hash">
+                            <TableColumn fx:id="colHash" prefWidth="200" text="Hash" style="-fx-background-color: #BBDEFB;">
                                 <cellValueFactory>
                                     <javafx.scene.control.cell.PropertyValueFactory property="hashShort" />
                                 </cellValueFactory>
@@ -147,14 +147,14 @@
 
         <!-- BOTTOM -->
         <bottom>
-            <HBox alignment="CENTER" prefHeight="147.0" prefWidth="911.0" spacing="20.0" style="-fx-background-color: #1a1a2e;">
+            <HBox alignment="CENTER" prefHeight="80.0" prefWidth="911.0" spacing="20.0" style="-fx-background-color: #263238;">
                 <padding>
                     <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                 </padding>
-                <Button fx:id="backBtn" prefHeight="45" prefWidth="180" style="-fx-background-color: #16213e; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-font-size: 14;" text="← BACK TO MENU" />
-                <Button fx:id="refreshBtn" prefHeight="45" prefWidth="150" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-font-size: 14;" text="🔄 REFRESH" />
-                <Button fx:id="verifyBtn" prefHeight="45" prefWidth="180" style="-fx-background-color: linear-gradient(to right, #ffa751, #ffe259); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-font-size: 14; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 3);" text="✓ VERIFY CHAIN" />
-                <Button fx:id="exportBtn" prefHeight="45" prefWidth="150" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-font-size: 14;" text="📤 EXPORT" />
+                <Button fx:id="backBtn" prefHeight="45" prefWidth="180" style="-fx-background-color: #455A64; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-font-size: 14;" text="← BACK TO MENU" />
+                <Button fx:id="refreshBtn" prefHeight="45" prefWidth="150" style="-fx-background-color: linear-gradient(to right, #1976D2, #2196F3); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-font-size: 14;" text="🔄 REFRESH" />
+                <Button fx:id="verifyBtn" prefHeight="45" prefWidth="180" style="-fx-background-color: linear-gradient(to right, #FF6F00, #FF8F00); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-font-size: 14; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 3);" text="✓ VERIFY CHAIN" />
+                <Button fx:id="exportBtn" prefHeight="45" prefWidth="150" style="-fx-background-color: linear-gradient(to right, #1565C0, #1976D2); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-font-size: 14;" text="📤 EXPORT" />
             </HBox>
         </bottom>
     </BorderPane>

@@ -8,24 +8,24 @@
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.mycompany.parfeu.Controller.Rawen.StatisticsController"
             prefWidth="900" prefHeight="700"
-            style="-fx-background-color: #ecf0f1;">
+            style="-fx-background-color: linear-gradient(to bottom, #E3F2FD, #FFF3E0);">
 
     <!-- HEADER -->
     <top>
-        <VBox alignment="CENTER" spacing="5" style="-fx-background-color: #34495e;">
+        <VBox alignment="CENTER" spacing="5" style="-fx-background-color: linear-gradient(to right, #1976D2, #FF6F00);">
             <padding>
                 <Insets top="20" right="20" bottom="20" left="20"/>
             </padding>
             <Label text="📊 Statistics"
                    style="-fx-font-size: 32; -fx-font-weight: bold; -fx-text-fill: white;"/>
             <Label text="Firewall Performance Metrics"
-                   style="-fx-font-size: 14; -fx-text-fill: #bdc3c7;"/>
+                   style="-fx-font-size: 14; -fx-text-fill: #FFE0B2;"/>
         </VBox>
     </top>
 
     <!-- CONTENT -->
     <center>
-        <ScrollPane fitToWidth="true" style="-fx-background-color: #ecf0f1;">
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
             <VBox spacing="20">
                 <padding>
                     <Insets top="20" right="20" bottom="20" left="20"/>
@@ -35,55 +35,58 @@
                 <HBox alignment="CENTER" spacing="20">
                     <!-- Total Packets -->
                     <VBox alignment="CENTER" spacing="10" prefWidth="200"
-                          style="-fx-background-color: white; -fx-border-color: #3498db; -fx-border-width: 3; -fx-background-radius: 10;">
+                          style="-fx-background-color: white; -fx-border-color: #1976D2; -fx-border-width: 3; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 8, 0, 0, 2);">
                         <padding>
                             <Insets top="20" right="20" bottom="20" left="20"/>
                         </padding>
                         <Label text="📦 Total Packets" style="-fx-font-size: 14; -fx-text-fill: #7f8c8d;"/>
                         <Label fx:id="totalPacketsLabel" text="0"
-                               style="-fx-font-size: 28; -fx-font-weight: bold; -fx-text-fill: #3498db;"/>
+                               style="-fx-font-size: 28; -fx-font-weight: bold; -fx-text-fill: #1976D2;"/>
                     </VBox>
 
                     <!-- Accepted -->
                     <VBox alignment="CENTER" spacing="10" prefWidth="200"
-                          style="-fx-background-color: white; -fx-border-color: #27ae60; -fx-border-width: 3; -fx-background-radius: 10;">
+                          style="-fx-background-color: white; -fx-border-color: #2196F3; -fx-border-width: 3; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 8, 0, 0, 2);">
                         <padding>
                             <Insets top="20" right="20" bottom="20" left="20"/>
                         </padding>
                         <Label text="✅ Accepted" style="-fx-font-size: 14; -fx-text-fill: #7f8c8d;"/>
                         <Label fx:id="acceptedLabel" text="0"
-                               style="-fx-font-size: 28; -fx-font-weight: bold; -fx-text-fill: #27ae60;"/>
+                               style="-fx-font-size: 28; -fx-font-weight: bold; -fx-text-fill: #2196F3;"/>
                     </VBox>
 
                     <!-- Blocked -->
                     <VBox alignment="CENTER" spacing="10" prefWidth="200"
-                          style="-fx-background-color: white; -fx-border-color: #e74c3c; -fx-border-width: 3; -fx-background-radius: 10;">
+                          style="-fx-background-color: white; -fx-border-color: #FF6F00; -fx-border-width: 3; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 8, 0, 0, 2);">
                         <padding>
                             <Insets top="20" right="20" bottom="20" left="20"/>
                         </padding>
                         <Label text="🚫 Blocked" style="-fx-font-size: 14; -fx-text-fill: #7f8c8d;"/>
                         <Label fx:id="blockedLabel" text="0"
-                               style="-fx-font-size: 28; -fx-font-weight: bold; -fx-text-fill: #e74c3c;"/>
+                               style="-fx-font-size: 28; -fx-font-weight: bold; -fx-text-fill: #FF6F00;"/>
                     </VBox>
 
                     <!-- Alerts -->
                     <VBox alignment="CENTER" spacing="10" prefWidth="200"
-                          style="-fx-background-color: white; -fx-border-color: #f39c12; -fx-border-width: 3; -fx-background-radius: 10;">
+                          style="-fx-background-color: white; -fx-border-color: #FF8F00; -fx-border-width: 3; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 8, 0, 0, 2);">
                         <padding>
                             <Insets top="20" right="20" bottom="20" left="20"/>
                         </padding>
                         <Label text="⚠️ Alerts" style="-fx-font-size: 14; -fx-text-fill: #7f8c8d;"/>
                         <Label fx:id="alertedLabel" text="0"
-                               style="-fx-font-size: 28; -fx-font-weight: bold; -fx-text-fill: #f39c12;"/>
+                               style="-fx-font-size: 28; -fx-font-weight: bold; -fx-text-fill: #FF8F00;"/>
                     </VBox>
                 </HBox>
 
-                <Separator />
+                <Separator style="-fx-background-color: #1976D2;" />
 
                 <!-- CHARTS SECTION -->
-                <VBox alignment="CENTER" spacing="20">
+                <VBox alignment="CENTER" spacing="20" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 8, 0, 0, 2);">
+                    <padding>
+                        <Insets top="20" right="20" bottom="20" left="20"/>
+                    </padding>
                     <Label text="📊 Visual Analytics"
-                           style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                           style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #1976D2;"/>
 
                     <HBox alignment="CENTER" spacing="20">
                         <!-- PIE CHART -->
@@ -100,37 +103,37 @@
                     </HBox>
                 </VBox>
 
-                <Separator />
+                <Separator style="-fx-background-color: #FF6F00;" />
 
                 <!-- DETAILS SECTION -->
-                <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 10;">
+                <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 8, 0, 0, 2);">
                     <padding>
                         <Insets top="20" right="20" bottom="20" left="20"/>
                     </padding>
                     <Label text="📋 Detailed Statistics"
-                           style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                           style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #FF6F00;"/>
                     <TextArea fx:id="detailsTextArea"
                               prefHeight="200" editable="false"
-                              style="-fx-font-family: 'Courier New'; -fx-font-size: 12; -fx-background-color: #f8f9fa;"/>
+                              style="-fx-font-family: 'Courier New'; -fx-font-size: 12; -fx-background-color: #FFF3E0; -fx-background-radius: 8;"/>
                 </VBox>
 
             </VBox>
         </ScrollPane>
     </center>
 
-    <!-- BOTTOM BUTTONS - AVEC fx:id -->
+    <!-- BOTTOM BUTTONS -->
     <bottom>
-        <HBox alignment="CENTER" spacing="20" style="-fx-background-color: #34495e;">
+        <HBox alignment="CENTER" spacing="20" style="-fx-background-color: #263238;">
             <padding>
                 <Insets top="20" right="20" bottom="20" left="20"/>
             </padding>
 
             <Button fx:id="backBtn" text="← Back" prefWidth="150" prefHeight="40"
-                    style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                    style="-fx-background-color: #455A64; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;"/>
             <Button fx:id="refreshBtn" text="🔄 Refresh" prefWidth="150" prefHeight="40"
-                    style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                    style="-fx-background-color: linear-gradient(to right, #1976D2, #2196F3); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;"/>
             <Button fx:id="exportBtn" text="📤 Export" prefWidth="150" prefHeight="40"
-                    style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                    style="-fx-background-color: linear-gradient(to right, #FF6F00, #FF8F00); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;"/>
         </HBox>
     </bottom>
 

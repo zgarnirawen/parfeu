@@ -7,8 +7,12 @@ import com.mycompany.parfeu.Model.Rawen.analyzer.DetectionSignal;
 import com.mycompany.parfeu.Model.Rawen.analyzer.PacketAnalyzer;
 import com.mycompany.parfeu.Model.Rawen.decision.DecisionEngine;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
@@ -52,7 +56,7 @@ public class DeepAnalysisController implements Initializable {
     }
 
     /**
-     * Définit le paquet à analyser.
+     * Définit le paquet à analyser et lance l'analyse automatiquement.
      */
     public void setPacket(Packet packet) {
         this.currentPacket = packet;
@@ -200,14 +204,38 @@ public class DeepAnalysisController implements Initializable {
         }
 
         if (decisionBtn != null) {
-            decisionBtn.setOnAction(event -> {
-                try {
-                    App.loadScene("/com/mycompany/parfeu/Views/Rawen/final_decision.fxml", 900, 800);
-                    // Pass data to final decision controller
-                } catch (IOException e) {
-                    showError("Navigation Error", "Cannot proceed to final decision");
-                }
-            });
+            decisionBtn.setOnAction(event -> navigateToFinalDecision());
+        }
+    }
+
+    /**
+     * Navigation vers Final Decision.
+     */
+    private void navigateToFinalDecision() {
+        if (currentPacket == null || detectedSignals == null) {
+            showWarning("Cannot Proceed", "Analysis not completed");
+            return;
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                App.class.getResource("/com/mycompany/parfeu/Views/Rawen/final_decision.fxml")
+            );
+            Parent root = loader.load();
+
+            // Passer les données au contrôleur de décision finale
+            FinalDecisionController controller = loader.getController();
+            controller.setDecisionData(currentPacket, detectedSignals);
+
+            // Charger la nouvelle scène
+            Scene scene = new Scene(root, 900, 800);
+            Stage stage = (Stage) decisionBtn.getScene().getWindow();
+            stage.setScene(scene);
+            stage.centerOnScreen();
+
+        } catch (IOException e) {
+            showError("Navigation Error", "Cannot proceed to Final Decision: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 

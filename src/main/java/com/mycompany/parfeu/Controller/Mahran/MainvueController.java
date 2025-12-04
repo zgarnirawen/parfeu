@@ -39,10 +39,10 @@ public class MainvueController implements Initializable {
      * Configure les actions des boutons.
      */
     private void setupButtonActions() {
-        // Bouton Générer Paquet
+        // Bouton Générer Paquet - CORRIGÉ
         generateBtn.setOnAction(event -> {
             try {
-                App.loadScene("/com/mycompany/parfeu/Views/Mahran/paquetgenerator.fxml", 800, 700);
+                App.loadScene("/com/mycompany/parfeu/Views/Mahran/guided_packet_input.fxml", 900, 800);
             } catch (IOException e) {
                 showError("Erreur de navigation", "Impossible de charger la vue Générateur de Paquets");
                 e.printStackTrace();
@@ -62,7 +62,7 @@ public class MainvueController implements Initializable {
         // Bouton Historique (Blockchain)
         historyBtn.setOnAction(event -> {
             try {
-                App.loadScene("/com/mycompany/parfeu/Views/Rawen/blockchain.fxml", 850, 800);
+                App.loadScene("/com/mycompany/parfeu/Views/Rawen/blockchain.fxml", 950, 800);
             } catch (IOException e) {
                 showError("Erreur de navigation", "Impossible de charger la vue Blockchain");
                 e.printStackTrace();

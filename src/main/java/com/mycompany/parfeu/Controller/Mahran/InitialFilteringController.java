@@ -3,12 +3,14 @@ package com.mycompany.parfeu.Controller.Mahran;
 import com.mycompany.parfeu.App;
 import com.mycompany.parfeu.Model.Mahran.config.FirewallConfig;
 import com.mycompany.parfeu.Model.Mahran.generator.Packet;
-import com.mycompany.parfeu.Model.Mahran.initialPacketFiltering.IPFilter;
-import com.mycompany.parfeu.Model.Mahran.initialPacketFiltering.PortFilter;
-import com.mycompany.parfeu.Model.Mahran.initialPacketFiltering.ProtocolFilter;
+import com.mycompany.parfeu.Controller.Rawen.DeepAnalysisController;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
@@ -42,6 +44,7 @@ public class InitialFilteringController implements Initializable {
 
     /**
      * Définit le paquet à filtrer.
+     * @param packet
      */
     public void setPacket(Packet packet) {
         this.currentPacket = packet;
@@ -186,21 +189,51 @@ public class InitialFilteringController implements Initializable {
 
         if (analyzeBtn != null) {
             analyzeBtn.setDisable(true);
-            analyzeBtn.setOnAction(event -> {
-                if (passedFiltering && currentPacket != null) {
-                    try {
-                        App.loadScene("/com/mycompany/parfeu/Views/Rawen/deep_analysis.fxml", 900, 800);
-                        // Pass packet to next controller (implement via App class or shared state)
-                    } catch (IOException e) {
-                        showError("Navigation Error", "Cannot proceed to analysis");
-                    }
-                }
-            });
+            analyzeBtn.setOnAction(event -> navigateToDeepAnalysis());
+        }
+    }
+
+    /**
+     * Navigation vers Deep Analysis.
+     */
+    private void navigateToDeepAnalysis() {
+        if (!passedFiltering || currentPacket == null) {
+            showWarning("Cannot Proceed", "Packet did not pass initial filtering");
+            return;
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                App.class.getResource("/com/mycompany/parfeu/Views/Rawen/deep_analysis.fxml")
+            );
+            Parent root = loader.load();
+
+            // Passer le paquet au contrôleur de deep analysis
+            DeepAnalysisController controller = loader.getController();
+            controller.setPacket(currentPacket);
+
+            // Charger la nouvelle scène
+            Scene scene = new Scene(root, 900, 800);
+            Stage stage = (Stage) analyzeBtn.getScene().getWindow();
+            stage.setScene(scene);
+            stage.centerOnScreen();
+
+        } catch (IOException e) {
+            showError("Navigation Error", "Cannot proceed to Deep Analysis: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
     private void showError(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
+    private void showWarning(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(content);

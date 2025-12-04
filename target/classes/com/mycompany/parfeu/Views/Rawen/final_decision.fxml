@@ -5,26 +5,26 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="800" prefWidth="900" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1"
+<AnchorPane prefHeight="800" prefWidth="900"
+            xmlns="http://javafx.com/javafx/8.0.171"
+            xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.mycompany.parfeu.Controller.Rawen.FinalDecisionController"
-            style="-fx-background-color: linear-gradient(to bottom, #0f2027, #203a43, #2c5364);">
+            style="-fx-background-color: linear-gradient(to bottom, #0a1a2f, #0d203a, #102848);">
 
-    <BorderPane prefHeight="800.0" prefWidth="900.0">
+    <BorderPane prefHeight="800" prefWidth="900">
+
         <!-- HEADER -->
         <top>
-            <VBox alignment="CENTER" prefHeight="100.0" style="-fx-background-color: linear-gradient(to right, #f093fb, #f5576c);">
-                <padding>
-                    <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
-                </padding>
-                <Label text="⚖️ FINAL DECISION" textFill="WHITE">
-                    <font>
-                        <Font name="System Bold" size="32.0" />
-                    </font>
+            <VBox alignment="CENTER" prefHeight="100"
+                  style="-fx-background-color: linear-gradient(to right, #1976D2, #1E88E5, #2196F3);">
+                <padding><Insets top="15" bottom="15" left="15" right="15"/></padding>
+
+                <Label text="⚖️ FINAL DECISION" textFill="#FFFFFF">
+                    <font><Font name="System Bold" size="32"/></font>
                 </Label>
-                <Label text="Firewall action determination" textFill="#FFE0E6">
-                    <font>
-                        <Font name="System Bold Italic" size="16.0" />
-                    </font>
+
+                <Label text="Firewall action determination" textFill="#D1E3FF">
+                    <font><Font name="System Italic" size="16"/></font>
                 </Label>
             </VBox>
         </top>
@@ -32,102 +32,111 @@
         <!-- CENTER -->
         <center>
             <ScrollPane fitToWidth="true" style="-fx-background: transparent;">
-                <VBox spacing="25.0">
-                    <padding>
-                        <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
-                    </padding>
+                <VBox spacing="25">
+                    <padding><Insets top="30" bottom="30" left="30" right="30"/></padding>
 
                     <!-- DECISION CARD -->
-                    <VBox alignment="CENTER" spacing="20.0" style="-fx-background-color: rgba(255,255,255,0.95); -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 15, 0, 0, 5);">
-                        <padding>
-                            <Insets bottom="30" left="30" right="30" top="30" />
-                        </padding>
-                        <Label text="🚨 ACTION" textFill="#f093fb">
-                            <font>
-                                <Font name="System Bold" size="20.0" />
-                            </font>
+                    <VBox alignment="CENTER" spacing="20"
+                          style="-fx-background-color: #E8F0FF; -fx-background-radius: 15;">
+                        <padding><Insets top="30" bottom="30" left="30" right="30"/></padding>
+
+                        <Label text="🚨 ACTION" textFill="#FF6F00">
+                            <font><Font name="System Bold" size="20"/></font>
                         </Label>
-                        <Label fx:id="actionLabel" text="PENDING" style="-fx-background-color: #f5576c; -fx-text-fill: white; -fx-padding: 15 30 15 30; -fx-background-radius: 12;">
-                            <font>
-                                <Font name="System Bold" size="36.0" />
-                            </font>
+
+                        <Label fx:id="actionLabel" text="PENDING"
+                               style="-fx-background-color: #1565C0; -fx-text-fill: white; -fx-padding: 15 30 15 30; -fx-background-radius: 12;">
+                            <font><Font name="System Bold" size="36"/></font>
                         </Label>
                     </VBox>
 
                     <!-- DECISION SUMMARY -->
-                    <VBox spacing="15.0" style="-fx-background-color: rgba(255,255,255,0.95); -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 15, 0, 0, 5);">
-                        <padding>
-                            <Insets bottom="20" left="20" right="20" top="20" />
-                        </padding>
-                        <Label text="📋 Decision Summary" textFill="#f093fb">
-                            <font>
-                                <Font name="System Bold" size="20.0" />
-                            </font>
+                    <VBox spacing="15"
+                          style="-fx-background-color: #E8F0FF; -fx-background-radius: 15;">
+                        <padding><Insets top="20" bottom="20" left="20" right="20"/></padding>
+
+                        <Label text="📋 Decision Summary" textFill="#1976D2">
+                            <font><Font name="System Bold" size="20"/></font>
                         </Label>
-                        
+
                         <GridPane hgap="20" vgap="15">
-                            <Label text="Final Score:" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                                <font><Font name="System Bold" size="14.0" /></font>
+
+                            <Label text="Final Score:"
+                                   GridPane.columnIndex="0" GridPane.rowIndex="0"
+                                   textFill="#0D47A1">
+                                <font><Font name="System Bold" size="14"/></font>
                             </Label>
                             <Label fx:id="finalScoreLabel" text="0 / 10"
-                                   GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                <font><Font name="System Bold" size="14.0" /></font>
+                                   GridPane.columnIndex="1" GridPane.rowIndex="0"
+                                   textFill="#0D47A1">
+                                <font><Font name="System Bold" size="14"/></font>
                             </Label>
 
-                            <Label text="Signals Detected:" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                                <font><Font name="System Bold" size="14.0" /></font>
+                            <Label text="Signals Detected:"
+                                   GridPane.columnIndex="0" GridPane.rowIndex="1"
+                                   textFill="#0D47A1">
+                                <font><Font name="System Bold" size="14"/></font>
                             </Label>
                             <Label fx:id="signalsCountLabel" text="0"
-                                   GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                <font><Font name="System Bold" size="14.0" /></font>
+                                   GridPane.columnIndex="1" GridPane.rowIndex="1"
+                                   textFill="#0D47A1">
+                                <font><Font name="System Bold" size="14"/></font>
                             </Label>
 
-                            <Label text="Risk Level:" GridPane.columnIndex="0" GridPane.rowIndex="2">
-                                <font><Font name="System Bold" size="14.0" /></font>
+                            <Label text="Risk Level:"
+                                   GridPane.columnIndex="0" GridPane.rowIndex="2"
+                                   textFill="#0D47A1">
+                                <font><Font name="System Bold" size="14"/></font>
                             </Label>
                             <Label fx:id="riskLevelSummaryLabel" text="UNKNOWN"
-                                   GridPane.columnIndex="1" GridPane.rowIndex="2">
-                                <font><Font name="System Bold" size="14.0" /></font>
+                                   GridPane.columnIndex="1" GridPane.rowIndex="2"
+                                   textFill="#0D47A1">
+                                <font><Font name="System Bold" size="14"/></font>
                             </Label>
 
-                            <Label text="Timestamp:" GridPane.columnIndex="0" GridPane.rowIndex="3">
-                                <font><Font name="System Bold" size="14.0" /></font>
+                            <Label text="Timestamp:"
+                                   GridPane.columnIndex="0" GridPane.rowIndex="3"
+                                   textFill="#0D47A1">
+                                <font><Font name="System Bold" size="14"/></font>
                             </Label>
                             <Label fx:id="timestampLabel" text="-"
-                                   GridPane.columnIndex="1" GridPane.rowIndex="3">
-                                <font><Font name="System Bold" size="14.0" /></font>
+                                   GridPane.columnIndex="1" GridPane.rowIndex="3"
+                                   textFill="#0D47A1">
+                                <font><Font name="System Bold" size="14"/></font>
                             </Label>
+
                         </GridPane>
                     </VBox>
 
                     <!-- REASON -->
-                    <VBox spacing="15.0" style="-fx-background-color: rgba(255,255,255,0.95); -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 15, 0, 0, 5);">
-                        <padding>
-                            <Insets bottom="20" left="20" right="20" top="20" />
-                        </padding>
-                        <Label text="💡 Reason" textFill="#f5576c">
-                            <font>
-                                <Font name="System Bold" size="20.0" />
-                            </font>
+                    <VBox spacing="15"
+                          style="-fx-background-color: #E8F0FF; -fx-background-radius: 15;">
+                        <padding><Insets top="20" bottom="20" left="20" right="20"/></padding>
+
+                        <Label text="💡 Reason" textFill="#FF6F00">
+                            <font><Font name="System Bold" size="20"/></font>
                         </Label>
-                        <TextArea fx:id="reasonArea" editable="false" prefHeight="100.0"
-                                 style="-fx-background-color: #F5F5F5; -fx-font-size: 14; -fx-background-radius: 8;"
-                                 promptText="Decision reason will appear here..." />
+
+                        <TextArea fx:id="reasonArea" editable="false" prefHeight="100"
+                                  style="-fx-background-color: #F2F7FF; -fx-text-fill: #0D47A1;
+                                         -fx-font-size: 14; -fx-background-radius: 8;"
+                                  promptText="Decision reason will appear here..." />
                     </VBox>
 
-                    <!-- COMPLETE DECISION REPORT -->
-                    <VBox spacing="15.0" style="-fx-background-color: rgba(255,255,255,0.95); -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 15, 0, 0, 5);">
-                        <padding>
-                            <Insets bottom="20" left="20" right="20" top="20" />
-                        </padding>
-                        <Label text="📄 Complete Report" textFill="#f093fb">
-                            <font>
-                                <Font name="System Bold" size="20.0" />
-                            </font>
+                    <!-- COMPLETE REPORT -->
+                    <VBox spacing="15"
+                          style="-fx-background-color: #E8F0FF; -fx-background-radius: 15;">
+                        <padding><Insets top="20" bottom="20" left="20" right="20"/></padding>
+
+                        <Label text="📄 Complete Report" textFill="#1976D2">
+                            <font><Font name="System Bold" size="20"/></font>
                         </Label>
-                        <TextArea fx:id="completeReportArea" editable="false" prefHeight="200.0"
-                                 style="-fx-background-color: #F5F5F5; -fx-font-family: 'Courier New'; -fx-font-size: 12; -fx-background-radius: 8;"
-                                 promptText="Complete decision report will appear here..." />
+
+                        <TextArea fx:id="completeReportArea" editable="false" prefHeight="200"
+                                  style="-fx-background-color: #F2F7FF; -fx-text-fill: #0D47A1;
+                                         -fx-font-family: 'Courier New'; -fx-font-size: 12;
+                                         -fx-background-radius: 8;"
+                                  promptText="Complete decision report will appear here..." />
                     </VBox>
 
                 </VBox>
@@ -136,16 +145,21 @@
 
         <!-- BOTTOM -->
         <bottom>
-            <HBox alignment="CENTER" spacing="20.0" style="-fx-background-color: #1a1a2e;">
-                <padding>
-                    <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-                </padding>
+            <HBox alignment="CENTER" spacing="20" style="-fx-background-color: #0D1B2A;">
+                <padding><Insets top="20" bottom="20" left="20" right="20"/></padding>
+
                 <Button fx:id="backBtn" text="← BACK" prefWidth="150" prefHeight="45"
-                        style="-fx-background-color: #16213e; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-font-size: 14;" />
-                <Button fx:id="saveToBlockchainBtn" text="💾 SAVE TO BLOCKCHAIN" prefWidth="250" prefHeight="45"
-                        style="-fx-background-color: linear-gradient(to right, #f093fb, #f5576c); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-font-size: 14; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 3);" />
+                        style="-fx-background-color: #1B263B; -fx-text-fill: #E8F0FF;
+                               -fx-font-weight: bold; -fx-background-radius: 10; -fx-font-size: 14;" />
+
+                <Button fx:id="saveToBlockchainBtn" text="💾 SAVE TO BLOCKCHAIN"
+                        prefWidth="250" prefHeight="45"
+                        style="-fx-background-color: linear-gradient(to right, #FF8F00, #FF6F00);
+                               -fx-text-fill: white; -fx-font-weight: bold;
+                               -fx-background-radius: 10; -fx-font-size: 14;" />
             </HBox>
         </bottom>
+
     </BorderPane>
 
 </AnchorPane>
