@@ -2,16 +2,22 @@ package com.mycompany.parfeu.Controller.Mahran;
 
 import com.mycompany.parfeu.App;
 import com.mycompany.parfeu.Model.Mahran.config.FirewallConfig;
+import com.mycompany.parfeu.Model.Rawen.persistence.StorageManager;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.stage.FileChooser;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 
 /**
- * Contrôleur pour la configuration du pare-feu.
+ * Contrôleur pour la configuration du pare-feu - Version complète et fonctionnelle.
  */
 public class ConfigurationController implements Initializable {
 
@@ -32,34 +38,93 @@ public class ConfigurationController implements Initializable {
     @FXML private Button addPortButton;
     @FXML private Button removePortButton;
     @FXML private Button backBtn;
+    @FXML private Button saveConfigBtn;
+    @FXML private Button loadConfigBtn;
+    @FXML private Button exportConfigBtn;
+    @FXML private Button resetConfigBtn;
 
     private FirewallConfig config;
+    private StorageManager storageManager;
+    private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        config = new FirewallConfig();
-        loadConfiguration();
-        setupButtonActions();
-        System.out.println("✓ ConfigurationController initialisé");
+        try {
+            config = new FirewallConfig();
+            storageManager = new StorageManager();
+            
+            initializeComponents();
+            loadConfiguration();
+            setupButtonActions();
+            
+            System.out.println("✓ ConfigurationController initialisé avec succès");
+        } catch (Exception e) {
+            System.err.println("✗ Erreur lors de l'initialisation : " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void initializeComponents() {
+        if (blockThresholdSpinner != null) {
+            blockThresholdSpinner.setValueFactory(
+                new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 10, 3)
+            );
+        }
+        
+        if (alertThresholdSpinner != null) {
+            alertThresholdSpinner.setValueFactory(
+                new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 10, 2)
+            );
+        }
     }
 
     private void loadConfiguration() {
-        // Charger les spinners
-        blockThresholdSpinner.setValueFactory(
-            new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 10, config.getBlockThreshold())
-        );
-        alertThresholdSpinner.setValueFactory(
-            new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 10, config.getAlertThreshold())
-        );
+        try {
+            // Essayer de charger la configuration existante
+            FirewallConfig loadedConfig = storageManager.loadConfiguration();
+            if (loadedConfig != null) {
+                config = loadedConfig;
+                System.out.println("✓ Configuration chargée depuis le fichier");
+            }
+        } catch (Exception e) {
+            System.out.println("ℹ Utilisation de la configuration par défaut");
+        }
+        
+        // Appliquer la configuration à l'interface
+        applyConfigToUI();
+    }
 
-        // Charger les champs de taille
-        minPacketSizeField.setText(String.valueOf(config.getMinPacketSize()));
-        maxPacketSizeField.setText(String.valueOf(config.getMaxPacketSize()));
+    private void applyConfigToUI() {
+        if (blockThresholdSpinner != null) {
+            blockThresholdSpinner.getValueFactory().setValue(config.getBlockThreshold());
+        }
+        
+        if (alertThresholdSpinner != null) {
+            alertThresholdSpinner.getValueFactory().setValue(config.getAlertThreshold());
+        }
 
-        // Charger les listes
-        suspiciousWordsList.getItems().addAll(config.getSuspiciousWords());
-        blacklistedIPsList.getItems().addAll(config.getBlacklistedIPs());
-        monitoredPortsList.getItems().addAll(config.getMonitoredPorts());
+        if (minPacketSizeField != null) {
+            minPacketSizeField.setText(String.valueOf(config.getMinPacketSize()));
+        }
+        
+        if (maxPacketSizeField != null) {
+            maxPacketSizeField.setText(String.valueOf(config.getMaxPacketSize()));
+        }
+
+        if (suspiciousWordsList != null) {
+            suspiciousWordsList.getItems().clear();
+            suspiciousWordsList.getItems().addAll(config.getSuspiciousWords());
+        }
+        
+        if (blacklistedIPsList != null) {
+            blacklistedIPsList.getItems().clear();
+            blacklistedIPsList.getItems().addAll(config.getBlacklistedIPs());
+        }
+        
+        if (monitoredPortsList != null) {
+            monitoredPortsList.getItems().clear();
+            monitoredPortsList.getItems().addAll(config.getMonitoredPorts());
+        }
     }
 
     private void setupButtonActions() {
@@ -69,100 +134,248 @@ public class ConfigurationController implements Initializable {
                 try {
                     App.loadMainMenu();
                 } catch (IOException e) {
-                    showError("Erreur de navigation", "Impossible de retourner au menu principal");
-                    e.printStackTrace();
+                    showError("Erreur", "Impossible de retourner au menu");
                 }
             });
         }
 
-        // Mots suspects
-        addWordButton.setOnAction(event -> {
-            String word = newSuspiciousWordField.getText().trim();
-            if (!word.isEmpty() && !suspiciousWordsList.getItems().contains(word)) {
-                suspiciousWordsList.getItems().add(word);
-                config.addSuspiciousWord(word);
-                newSuspiciousWordField.clear();
-                showInfo("Ajouté", "Le mot '" + word + "' a été ajouté à la liste");
-            }
-        });
+        // Bouton Save Configuration
+        if (saveConfigBtn != null) {
+            saveConfigBtn.setOnAction(event -> saveConfiguration());
+        }
 
-        removeWordButton.setOnAction(event -> {
-            String selected = suspiciousWordsList.getSelectionModel().getSelectedItem();
-            if (selected != null) {
-                suspiciousWordsList.getItems().remove(selected);
-                config.removeSuspiciousWord(selected);
-                showInfo("Supprimé", "Le mot '" + selected + "' a été retiré");
-            }
-        });
+        // Bouton Load Configuration
+        if (loadConfigBtn != null) {
+            loadConfigBtn.setOnAction(event -> reloadConfiguration());
+        }
 
-        // IPs blacklistées
-        addIPButton.setOnAction(event -> {
-            String ip = newIPField.getText().trim();
-            if (isValidIP(ip) && !blacklistedIPsList.getItems().contains(ip)) {
-                blacklistedIPsList.getItems().add(ip);
-                config.addBlacklistedIP(ip);
-                newIPField.clear();
-                showInfo("IP Ajoutée", "L'adresse IP " + ip + " a été blacklistée");
-            } else {
-                showError("IP invalide", "Veuillez entrer une adresse IP valide (ex: 192.168.1.1)");
-            }
-        });
+        // Bouton Export Configuration
+        if (exportConfigBtn != null) {
+            exportConfigBtn.setOnAction(event -> exportConfiguration());
+        }
 
-        removeIPButton.setOnAction(event -> {
-            String selected = blacklistedIPsList.getSelectionModel().getSelectedItem();
-            if (selected != null) {
-                blacklistedIPsList.getItems().remove(selected);
-                config.removeBlacklistedIP(selected);
-                showInfo("IP Retirée", "L'adresse IP " + selected + " a été retirée de la blacklist");
-            }
-        });
+        // Bouton Reset Configuration
+        if (resetConfigBtn != null) {
+            resetConfigBtn.setOnAction(event -> resetConfiguration());
+        }
 
-        // Ports surveillés
-        addPortButton.setOnAction(event -> {
-            try {
-                int port = Integer.parseInt(newPortField.getText().trim());
-                if (port >= 0 && port <= 65535 && !monitoredPortsList.getItems().contains(port)) {
-                    monitoredPortsList.getItems().add(port);
-                    config.addMonitoredPort(port);
-                    newPortField.clear();
-                    showInfo("Port Ajouté", "Le port " + port + " est maintenant surveillé");
-                } else {
-                    showError("Port invalide", "Le port doit être entre 0 et 65535 et ne pas être déjà dans la liste");
+        setupWordButtons();
+        setupIPButtons();
+        setupPortButtons();
+        setupSpinnerListeners();
+    }
+
+    private void setupWordButtons() {
+        if (addWordButton != null) {
+            addWordButton.setOnAction(event -> {
+                String word = newSuspiciousWordField.getText().trim();
+                if (!word.isEmpty() && !suspiciousWordsList.getItems().contains(word)) {
+                    suspiciousWordsList.getItems().add(word);
+                    config.addSuspiciousWord(word);
+                    newSuspiciousWordField.clear();
+                    showInfo("Ajouté", "Le mot '" + word + "' a été ajouté");
                 }
-            } catch (NumberFormatException e) {
-                showError("Erreur de format", "Veuillez entrer un nombre valide");
-            }
-        });
+            });
+        }
 
-        removePortButton.setOnAction(event -> {
-            Integer selected = monitoredPortsList.getSelectionModel().getSelectedItem();
-            if (selected != null) {
-                monitoredPortsList.getItems().remove(selected);
-                config.removeMonitoredPort(selected);
-                showInfo("Port Retiré", "Le port " + selected + " n'est plus surveillé");
-            }
-        });
+        if (removeWordButton != null) {
+            removeWordButton.setOnAction(event -> {
+                String selected = suspiciousWordsList.getSelectionModel().getSelectedItem();
+                if (selected != null) {
+                    suspiciousWordsList.getItems().remove(selected);
+                    config.removeSuspiciousWord(selected);
+                    showInfo("Supprimé", "Le mot '" + selected + "' a été retiré");
+                }
+            });
+        }
+    }
 
-        // Listener pour les spinners
-        blockThresholdSpinner.valueProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal != null) {
-                config.setBlockThreshold(newVal);
-                System.out.println("Seuil de blocage mis à jour: " + newVal);
-            }
-        });
+    private void setupIPButtons() {
+        if (addIPButton != null) {
+            addIPButton.setOnAction(event -> {
+                String ip = newIPField.getText().trim();
+                if (isValidIP(ip) && !blacklistedIPsList.getItems().contains(ip)) {
+                    blacklistedIPsList.getItems().add(ip);
+                    config.addBlacklistedIP(ip);
+                    newIPField.clear();
+                    showInfo("IP Ajoutée", "L'IP " + ip + " a été blacklistée");
+                } else if (!isValidIP(ip)) {
+                    showError("IP invalide", "Format invalide (ex: 192.168.1.1)");
+                }
+            });
+        }
 
-        alertThresholdSpinner.valueProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal != null) {
-                config.setAlertThreshold(newVal);
-                System.out.println("Seuil d'alerte mis à jour: " + newVal);
+        if (removeIPButton != null) {
+            removeIPButton.setOnAction(event -> {
+                String selected = blacklistedIPsList.getSelectionModel().getSelectedItem();
+                if (selected != null) {
+                    blacklistedIPsList.getItems().remove(selected);
+                    config.removeBlacklistedIP(selected);
+                    showInfo("IP Retirée", "L'IP " + selected + " a été retirée");
+                }
+            });
+        }
+    }
+
+    private void setupPortButtons() {
+        if (addPortButton != null) {
+            addPortButton.setOnAction(event -> {
+                try {
+                    int port = Integer.parseInt(newPortField.getText().trim());
+                    if (port >= 0 && port <= 65535 && !monitoredPortsList.getItems().contains(port)) {
+                        monitoredPortsList.getItems().add(port);
+                        config.addMonitoredPort(port);
+                        newPortField.clear();
+                        showInfo("Port Ajouté", "Le port " + port + " est surveillé");
+                    } else {
+                        showError("Port invalide", "Port doit être entre 0 et 65535");
+                    }
+                } catch (NumberFormatException e) {
+                    showError("Erreur", "Veuillez entrer un nombre valide");
+                }
+            });
+        }
+
+        if (removePortButton != null) {
+            removePortButton.setOnAction(event -> {
+                Integer selected = monitoredPortsList.getSelectionModel().getSelectedItem();
+                if (selected != null) {
+                    monitoredPortsList.getItems().remove(selected);
+                    config.removeMonitoredPort(selected);
+                    showInfo("Port Retiré", "Le port " + selected + " n'est plus surveillé");
+                }
+            });
+        }
+    }
+
+    private void setupSpinnerListeners() {
+        if (blockThresholdSpinner != null) {
+            blockThresholdSpinner.valueProperty().addListener((obs, oldVal, newVal) -> {
+                if (newVal != null) {
+                    try {
+                        config.setBlockThreshold(newVal);
+                        System.out.println("Seuil de blocage: " + newVal);
+                    } catch (IllegalArgumentException e) {
+                        showError("Valeur invalide", e.getMessage());
+                        blockThresholdSpinner.getValueFactory().setValue(oldVal);
+                    }
+                }
+            });
+        }
+
+        if (alertThresholdSpinner != null) {
+            alertThresholdSpinner.valueProperty().addListener((obs, oldVal, newVal) -> {
+                if (newVal != null) {
+                    try {
+                        config.setAlertThreshold(newVal);
+                        System.out.println("Seuil d'alerte: " + newVal);
+                    } catch (IllegalArgumentException e) {
+                        showError("Valeur invalide", e.getMessage());
+                        alertThresholdSpinner.getValueFactory().setValue(oldVal);
+                    }
+                }
+            });
+        }
+    }
+
+    private void saveConfiguration() {
+        try {
+            storageManager.saveConfiguration(config);
+            showSuccess("Sauvegardé", "Configuration sauvegardée avec succès!");
+            System.out.println("✓ Configuration sauvegardée");
+        } catch (Exception e) {
+            showError("Erreur", "Impossible de sauvegarder: " + e.getMessage());
+        }
+    }
+
+    private void reloadConfiguration() {
+        try {
+            FirewallConfig loadedConfig = storageManager.loadConfiguration();
+            if (loadedConfig != null) {
+                config = loadedConfig;
+                applyConfigToUI();
+                showSuccess("Chargé", "Configuration rechargée!");
+            }
+        } catch (Exception e) {
+            showError("Erreur", "Impossible de charger: " + e.getMessage());
+        }
+    }
+
+    private void exportConfiguration() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Exporter la Configuration");
+        fileChooser.setInitialFileName("firewall_config_" + 
+            LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + ".txt");
+        fileChooser.getExtensionFilters().add(
+            new FileChooser.ExtensionFilter("Text Files", "*.txt"));
+        
+        File file = fileChooser.showSaveDialog(exportConfigBtn.getScene().getWindow());
+        
+        if (file != null) {
+            try (FileWriter writer = new FileWriter(file)) {
+                writer.write("═══════════════════════════════════════════════════════════\n");
+                writer.write("         CONFIGURATION DU PARE-FEU\n");
+                writer.write("         Exporté le: " + LocalDateTime.now().format(formatter) + "\n");
+                writer.write("═══════════════════════════════════════════════════════════\n\n");
+                
+                writer.write("📊 SEUILS DE DÉCISION\n");
+                writer.write("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+                writer.write("Seuil de blocage  : " + config.getBlockThreshold() + "\n");
+                writer.write("Seuil d'alerte    : " + config.getAlertThreshold() + "\n\n");
+                
+                writer.write("📦 LIMITES DE TAILLE\n");
+                writer.write("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+                writer.write("Taille minimale   : " + config.getMinPacketSize() + " bytes\n");
+                writer.write("Taille maximale   : " + config.getMaxPacketSize() + " bytes\n\n");
+                
+                writer.write("🔍 MOTS SUSPECTS (" + config.getSuspiciousWords().size() + ")\n");
+                writer.write("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+                for (String word : config.getSuspiciousWords()) {
+                    writer.write("  • " + word + "\n");
+                }
+                writer.write("\n");
+                
+                writer.write("🚫 IPs BLACKLISTÉES (" + config.getBlacklistedIPs().size() + ")\n");
+                writer.write("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+                for (String ip : config.getBlacklistedIPs()) {
+                    writer.write("  • " + ip + "\n");
+                }
+                writer.write("\n");
+                
+                writer.write("🔌 PORTS SURVEILLÉS (" + config.getMonitoredPorts().size() + ")\n");
+                writer.write("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+                for (Integer port : config.getMonitoredPorts()) {
+                    writer.write("  • " + port + "\n");
+                }
+                
+                writer.write("\n═══════════════════════════════════════════════════════════\n");
+                
+                showSuccess("Exporté", "Configuration exportée vers:\n" + file.getAbsolutePath());
+            } catch (IOException e) {
+                showError("Erreur d'export", "Impossible d'exporter: " + e.getMessage());
+            }
+        }
+    }
+
+    private void resetConfiguration() {
+        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmation.setTitle("Confirmation");
+        confirmation.setHeaderText("Réinitialiser la configuration");
+        confirmation.setContentText("Voulez-vous vraiment réinitialiser la configuration aux valeurs par défaut?");
+        
+        confirmation.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                config = new FirewallConfig();
+                applyConfigToUI();
+                showSuccess("Réinitialisé", "Configuration réinitialisée aux valeurs par défaut");
             }
         });
     }
 
     private boolean isValidIP(String ip) {
+        if (ip == null || ip.isEmpty()) return false;
         String[] parts = ip.split("\\.");
         if (parts.length != 4) return false;
-        
         try {
             for (String part : parts) {
                 int num = Integer.parseInt(part);
@@ -183,6 +396,14 @@ public class ConfigurationController implements Initializable {
     }
 
     private void showInfo(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
+    private void showSuccess(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(null);

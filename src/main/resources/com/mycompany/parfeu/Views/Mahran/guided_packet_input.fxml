@@ -139,21 +139,6 @@
                                  promptText="Generated packet will appear here..." />
                     </VBox>
 
-                    <!-- ANALYSIS RESULTS -->
-                    <VBox spacing="15.0" style="-fx-background-color: rgba(255,255,255,0.95); -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 15, 0, 0, 5);">
-                        <padding>
-                            <Insets bottom="20" left="20" right="20" top="20" />
-                        </padding>
-                        <Label text="🔍 Analysis Results" textFill="#FF6F00">
-                            <font>
-                                <Font name="System Bold" size="20.0" />
-                            </font>
-                        </Label>
-                        <TextArea fx:id="analysisResultArea" editable="false" prefHeight="200.0"
-                                 style="-fx-background-color: #FFF3E0; -fx-font-family: 'Courier New'; -fx-font-size: 12; -fx-background-radius: 8; -fx-border-color: #FF6F00; -fx-border-radius: 8;"
-                                 promptText="Analysis results will appear here..." />
-                    </VBox>
-
                 </VBox>
             </ScrollPane>
         </center>
@@ -166,10 +151,8 @@
                 </padding>
                 <Button fx:id="backBtn" text="← BACK TO MENU" prefWidth="180" prefHeight="45"
                         style="-fx-background-color: #455A64; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-font-size: 14;" />
-                <Button fx:id="analyzeButton" text="🔍 ANALYZE PACKET" prefWidth="200" prefHeight="45"
-                        style="-fx-background-color: linear-gradient(to right, #1976D2, #2196F3); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-font-size: 14; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 3);" />
-                <Button fx:id="saveButton" text="💾 SAVE TO BLOCKCHAIN" prefWidth="220" prefHeight="45"
-                        style="-fx-background-color: linear-gradient(to right, #FF6F00, #FF8F00); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-font-size: 14; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 3);" />
+                <Button fx:id="initialFilterBtn" text="🔍 INITIAL FILTERING" prefWidth="220" prefHeight="45"
+                        style="-fx-background-color: linear-gradient(to right, #4ECDC4, #44A08D); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-font-size: 14; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 3);" />
             </HBox>
         </bottom>
     </BorderPane>

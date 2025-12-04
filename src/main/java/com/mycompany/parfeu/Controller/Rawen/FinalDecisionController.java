@@ -4,10 +4,9 @@ import com.mycompany.parfeu.App;
 import com.mycompany.parfeu.Model.Mahran.config.FirewallConfig;
 import com.mycompany.parfeu.Model.Mahran.generator.Packet;
 import com.mycompany.parfeu.Model.Rawen.analyzer.DetectionSignal;
-import com.mycompany.parfeu.Model.Rawen.blockchain.Block;
 import com.mycompany.parfeu.Model.Rawen.decision.DecisionEngine;
 import com.mycompany.parfeu.Model.Rawen.decision.DecisionResult;
-import com.mycompany.parfeu.Model.Rawen.persistence.StorageManager;
+import com.mycompany.parfeu.Model.Rawen.persistence.SharedDataManager;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -20,6 +19,7 @@ import java.util.ResourceBundle;
 
 /**
  * Contrôleur pour la décision finale du pare-feu.
+ * Utilise SharedDataManager pour partager les données.
  */
 public class FinalDecisionController implements Initializable {
 
@@ -37,7 +37,7 @@ public class FinalDecisionController implements Initializable {
     private List<DetectionSignal> signals;
     private DecisionResult decision;
     private DecisionEngine decisionEngine;
-    private StorageManager storageManager;
+    private SharedDataManager sharedData;
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
@@ -45,14 +45,14 @@ public class FinalDecisionController implements Initializable {
         try {
             FirewallConfig config = new FirewallConfig();
             decisionEngine = new DecisionEngine(config);
-            storageManager = new StorageManager();
+            sharedData = SharedDataManager.getInstance();
             
             setupButtons();
             saveToBlockchainBtn.setDisable(true);
             
-            System.out.println("✓ FinalDecisionController initialized");
+            System.out.println("✓ FinalDecisionController initialisé");
         } catch (Exception e) {
-            showError("Initialization Error", "Failed to initialize controller: " + e.getMessage());
+            showError("Erreur d'initialisation", "Erreur: " + e.getMessage());
         }
     }
 
@@ -70,7 +70,7 @@ public class FinalDecisionController implements Initializable {
      */
     private void makeDecision() {
         if (currentPacket == null || signals == null) {
-            showWarning("No Data", "Please complete the analysis first");
+            showWarning("Pas de données", "Veuillez compléter l'analyse d'abord");
             return;
         }
 
@@ -88,7 +88,7 @@ public class FinalDecisionController implements Initializable {
             saveToBlockchainBtn.setDisable(false);
 
         } catch (Exception e) {
-            showError("Decision Error", "Failed to make decision: " + e.getMessage());
+            showError("Erreur de décision", "Impossible de prendre la décision: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -152,40 +152,45 @@ public class FinalDecisionController implements Initializable {
     }
 
     /**
-     * Sauvegarde dans la blockchain.
+     * Sauvegarde dans la blockchain ET les statistiques.
      */
     private void saveToBlockchain() {
         if (decision == null) {
-            showWarning("No Decision", "Please complete the analysis first");
+            showWarning("Pas de décision", "Veuillez compléter l'analyse d'abord");
             return;
         }
 
         try {
-            // Créer un nouveau bloc
-            Block newBlock = new Block(
-                getNextBlockIndex(),
-                List.of(decision),
-                getLastBlockHash()
-            );
+            // Ajouter à la blockchain ET aux statistiques via SharedDataManager
+            sharedData.addDecision(decision);
+            
+            // Afficher le résumé
+            sharedData.printSummary();
 
-            // Sauvegarder dans l'historique
-            storageManager.saveBlockToHistory(newBlock);
+            showSuccess("Sauvegarde réussie", 
+                "✓ Décision sauvegardée dans la blockchain!\n" +
+                "✓ Statistiques mises à jour!\n\n" +
+                "Action: " + decision.getAction() + "\n" +
+                "Score: " + decision.getTotalScore() + "/10");
 
-            showSuccess("Saved Successfully", 
-                "Decision saved to blockchain!\n\n" +
-                "Block #" + newBlock.index() + " created\n" +
-                "Hash: " + truncateHash(newBlock.hash()));
-
-            // Retourner au menu
-            try {
-                Thread.sleep(1000); // Petit délai pour voir le message
-                App.loadMainMenu();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
+            // Retourner au menu après un court délai
+            new Thread(() -> {
+                try {
+                    Thread.sleep(2000);
+                    javafx.application.Platform.runLater(() -> {
+                        try {
+                            App.loadMainMenu();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }).start();
 
         } catch (Exception e) {
-            showError("Save Error", "Failed to save to blockchain: " + e.getMessage());
+            showError("Erreur de sauvegarde", "Impossible de sauvegarder: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -199,7 +204,7 @@ public class FinalDecisionController implements Initializable {
                 try {
                     App.loadScene("/com/mycompany/parfeu/Views/Rawen/deep_analysis.fxml", 900, 800);
                 } catch (IOException e) {
-                    showError("Navigation Error", "Cannot return to previous page");
+                    showError("Erreur de navigation", "Impossible de revenir en arrière");
                 }
             });
         }
@@ -207,33 +212,6 @@ public class FinalDecisionController implements Initializable {
         if (saveToBlockchainBtn != null) {
             saveToBlockchainBtn.setOnAction(event -> saveToBlockchain());
         }
-    }
-
-    private int getNextBlockIndex() {
-        try {
-            return (int) storageManager.countBlocks() + 1;
-        } catch (Exception e) {
-            return 1;
-        }
-    }
-
-    private String getLastBlockHash() {
-        try {
-            List<String> history = storageManager.loadBlockHistory();
-            if (history.isEmpty()) {
-                return "0"; // Genesis
-            }
-            String lastLine = history.get(history.size() - 1);
-            String[] parts = lastLine.split(",");
-            return parts[parts.length - 1]; // Last field = hash
-        } catch (Exception e) {
-            return "0";
-        }
-    }
-
-    private String truncateHash(String hash) {
-        if (hash == null || hash.length() <= 16) return hash;
-        return hash.substring(0, 8) + "..." + hash.substring(hash.length() - 8);
     }
 
     private void showError(String title, String content) {
@@ -260,6 +238,7 @@ public class FinalDecisionController implements Initializable {
         alert.showAndWait();
     }
 
-    // Getters
-    public DecisionResult getDecision() { return decision; }
+    public DecisionResult getDecision() {
+        return decision;
+    }
 }

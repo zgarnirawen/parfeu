@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:id="rootPane" prefWidth="650" prefHeight="750" style="-fx-background-color: linear-gradient(to bottom, #E3F2FD, #FFF3E0);">
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:id="rootPane" prefWidth="650" prefHeight="800" style="-fx-background-color: linear-gradient(to bottom, #E3F2FD, #FFF3E0);">
 
     <!-- Header -->
     <VBox fx:id="headerBox" prefHeight="80" spacing="10" AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" style="-fx-background-color: linear-gradient(to right, #1976D2, #FF6F00); -fx-alignment: center; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8,0,0,2);">
@@ -17,7 +17,7 @@
     </VBox>
 
     <!-- Scrollable Content -->
-    <ScrollPane fx:id="scrollPane" AnchorPane.topAnchor="80" AnchorPane.bottomAnchor="60" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" fitToWidth="true" style="-fx-background-color: transparent;">
+    <ScrollPane fx:id="scrollPane" AnchorPane.topAnchor="80" AnchorPane.bottomAnchor="120" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" fitToWidth="true" style="-fx-background-color: transparent;">
         <VBox spacing="20">
             <padding>
                 <Insets top="25" right="25" bottom="25" left="25"/>
@@ -99,14 +99,27 @@
         </VBox>
     </ScrollPane>
 
-    <!-- Bouton Back en bas -->
-    <HBox alignment="CENTER" spacing="20" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" 
+    <!-- Boutons en bas -->
+    <HBox alignment="CENTER" spacing="15" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" 
           style="-fx-background-color: #263238;">
         <padding>
             <Insets top="15" right="20" bottom="15" left="20"/>
         </padding>
-        <Button fx:id="backBtn" text="← Retour au Menu" prefWidth="200" prefHeight="40"
-                style="-fx-background-color: linear-gradient(to right, #1976D2, #FF6F00); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-font-size: 14;"/>
+        
+        <Button fx:id="backBtn" text="← Retour" prefWidth="120" prefHeight="40"
+                style="-fx-background-color: #455A64; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-font-size: 13;"/>
+        
+        <Button fx:id="saveConfigBtn" text="💾 Sauvegarder" prefWidth="140" prefHeight="40"
+                style="-fx-background-color: linear-gradient(to right, #1976D2, #2196F3); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-font-size: 13;"/>
+        
+        <Button fx:id="loadConfigBtn" text="📥 Charger" prefWidth="120" prefHeight="40"
+                style="-fx-background-color: linear-gradient(to right, #FF6F00, #FF8F00); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-font-size: 13;"/>
+        
+        <Button fx:id="exportConfigBtn" text="📤 Exporter" prefWidth="120" prefHeight="40"
+                style="-fx-background-color: linear-gradient(to right, #0D47A1, #1976D2); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-font-size: 13;"/>
+        
+        <Button fx:id="resetConfigBtn" text="🔄 Reset" prefWidth="100" prefHeight="40"
+                style="-fx-background-color: linear-gradient(to right, #E65100, #FF6F00); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-font-size: 13;"/>
     </HBox>
 
 </AnchorPane>

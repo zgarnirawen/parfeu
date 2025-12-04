@@ -2,6 +2,7 @@ package com.mycompany.parfeu.Controller.Rawen;
 
 import com.mycompany.parfeu.App;
 import com.mycompany.parfeu.Model.Rawen.statistics.StatisticsManager;
+import com.mycompany.parfeu.Model.Rawen.persistence.SharedDataManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -9,14 +10,20 @@ import javafx.fxml.Initializable;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.FileChooser;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.ResourceBundle;
 
 /**
  * Contrôleur pour la vue des statistiques.
+ * Utilise SharedDataManager pour les données partagées.
  */
 public class StatisticsController implements Initializable {
 
@@ -34,11 +41,16 @@ public class StatisticsController implements Initializable {
     @FXML private Button exportBtn;
 
     private StatisticsManager statistics;
+    private SharedDataManager sharedData;
+    private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // Initialiser le gestionnaire de statistiques
-        statistics = new StatisticsManager();
+        System.out.println("\n📊 ========== STATISTICS CONTROLLER INIT ==========");
+        
+        // Utiliser les statistiques partagées
+        sharedData = SharedDataManager.getInstance();
+        statistics = sharedData.getStatistics();
         
         // Configurer les colonnes du tableau
         setupTableColumns();
@@ -52,7 +64,9 @@ public class StatisticsController implements Initializable {
         // Configurer les boutons
         setupButtons();
         
-        System.out.println("✓ StatisticsController initialisé");
+        System.out.println("✅ StatisticsController initialisé");
+        System.out.println("   Total paquets: " + statistics.getTotalPackets());
+        System.out.println("================================================\n");
     }
 
     /**
@@ -69,6 +83,8 @@ public class StatisticsController implements Initializable {
      * Charge les statistiques depuis le gestionnaire.
      */
     private void loadStatistics() {
+        System.out.println("📈 Chargement des statistiques...");
+        
         // Statistiques de base
         totalPacketsLabel.setText(String.valueOf(statistics.getTotalPackets()));
         acceptedLabel.setText(String.valueOf(statistics.getAcceptedPackets()));
@@ -80,6 +96,8 @@ public class StatisticsController implements Initializable {
         
         // Tableau des protocoles
         updateProtocolTable();
+        
+        System.out.println("✓ Statistiques chargées");
     }
 
     /**
@@ -99,18 +117,24 @@ public class StatisticsController implements Initializable {
         int blocked = statistics.getDroppedPackets();
         int alerted = statistics.getAlertedPackets();
         
-        ObservableList<PieChart.Data> pieData = FXCollections.observableArrayList(
-            new PieChart.Data("Accepted (" + accepted + ")", accepted),
-            new PieChart.Data("Blocked (" + blocked + ")", blocked),
-            new PieChart.Data("Alerted (" + alerted + ")", alerted)
-        );
-        
-        pieChart.setData(pieData);
-        
-        // Appliquer des couleurs personnalisées
-        pieChart.getData().get(0).getNode().setStyle("-fx-pie-color: #27ae60;");
-        pieChart.getData().get(1).getNode().setStyle("-fx-pie-color: #e74c3c;");
-        pieChart.getData().get(2).getNode().setStyle("-fx-pie-color: #f39c12;");
+        // Ne créer le graphique que s'il y a des données
+        if (accepted > 0 || blocked > 0 || alerted > 0) {
+            ObservableList<PieChart.Data> pieData = FXCollections.observableArrayList(
+                new PieChart.Data("Acceptés (" + accepted + ")", accepted),
+                new PieChart.Data("Bloqués (" + blocked + ")", blocked),
+                new PieChart.Data("Alertes (" + alerted + ")", alerted)
+            );
+            
+            pieChart.setData(pieData);
+            
+            // Appliquer des couleurs personnalisées
+            pieChart.getData().get(0).getNode().setStyle("-fx-pie-color: #27ae60;");
+            pieChart.getData().get(1).getNode().setStyle("-fx-pie-color: #e74c3c;");
+            pieChart.getData().get(2).getNode().setStyle("-fx-pie-color: #f39c12;");
+        } else {
+            // Afficher un message si pas de données
+            pieChart.setTitle("Aucune donnée disponible");
+        }
     }
 
     /**
@@ -131,14 +155,6 @@ public class StatisticsController implements Initializable {
                     entry.getValue().totalPackets
                 ));
             }
-        } else {
-            // Données de test si aucune statistique
-            protocolData.addAll(
-                new ProtocolStat("HTTP", 0),
-                new ProtocolStat("HTTPS", 0),
-                new ProtocolStat("TCP", 0),
-                new ProtocolStat("UDP", 0)
-            );
         }
         
         if (statsTable != null) {
@@ -154,13 +170,21 @@ public class StatisticsController implements Initializable {
         
         sb.append("═══════════════════════════════════════════════════════\n");
         sb.append("           RAPPORT STATISTIQUES DÉTAILLÉ\n");
+        sb.append("           Généré le: ").append(LocalDateTime.now().format(formatter)).append("\n");
         sb.append("═══════════════════════════════════════════════════════\n\n");
         
         int total = statistics.getTotalPackets();
         
         if (total == 0) {
-            sb.append("Aucune statistique disponible.\n\n");
-            sb.append("Commencez par analyser des paquets dans l'onglet 'Generate'.\n");
+            sb.append("❌ Aucune statistique disponible.\n\n");
+            sb.append("💡 Commencez par analyser des paquets dans l'onglet\n");
+            sb.append("   'Generate Packet' pour voir les statistiques.\n\n");
+            sb.append("📋 Les statistiques incluront:\n");
+            sb.append("   • Nombre total de paquets traités\n");
+            sb.append("   • Répartition des actions (acceptés/bloqués/alertes)\n");
+            sb.append("   • Statistiques par protocole\n");
+            sb.append("   • Statistiques par IP source\n");
+            sb.append("   • Taux de blocage et d'alerte\n");
         } else {
             // Statistiques générales
             sb.append("📊 STATISTIQUES GÉNÉRALES\n");
@@ -210,33 +234,28 @@ public class StatisticsController implements Initializable {
      * Configure les actions des boutons.
      */
     private void setupButtons() {
-        // Bouton Retour
         if (backBtn != null) {
             backBtn.setOnAction(event -> {
                 try {
-                    App.loadScene("/com/mycompany/parfeu/Views/Mahran/mainvue.fxml", 800, 600);
+                    App.loadMainMenu();
                 } catch (IOException e) {
-                    showError("Erreur", "Impossible de retourner au menu principal");
+                    showError("Erreur", "Impossible de retourner au menu");
                     e.printStackTrace();
                 }
             });
         }
         
-        // Bouton Rafraîchir
         if (refreshBtn != null) {
             refreshBtn.setOnAction(event -> {
                 loadStatistics();
                 updatePieChart();
                 updateProtocolTable();
-                showInfo("Rafraîchi", "Les statistiques ont été mises à jour");
+                showInfo("Rafraîchi", "Statistiques mises à jour!\n\nTotal paquets: " + statistics.getTotalPackets());
             });
         }
         
-        // Bouton Exporter
         if (exportBtn != null) {
-            exportBtn.setOnAction(event -> {
-                exportStatistics();
-            });
+            exportBtn.setOnAction(event -> exportStatistics());
         }
     }
 
@@ -244,30 +263,28 @@ public class StatisticsController implements Initializable {
      * Exporte les statistiques.
      */
     private void exportStatistics() {
-        try {
-            String stats = detailsTextArea.getText();
-            // Ici vous pourriez sauvegarder dans un fichier
-            // Pour l'instant, on affiche juste une confirmation
-            showInfo("Export", "Les statistiques ont été exportées avec succès");
-        } catch (Exception e) {
-            showError("Erreur d'export", "Impossible d'exporter les statistiques");
-            e.printStackTrace();
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Exporter les Statistiques");
+        fileChooser.setInitialFileName("firewall_stats_" + 
+            LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + ".txt");
+        fileChooser.getExtensionFilters().add(
+            new FileChooser.ExtensionFilter("Fichiers Texte", "*.txt"));
+        
+        File file = fileChooser.showSaveDialog(exportBtn.getScene().getWindow());
+        
+        if (file != null) {
+            try (FileWriter writer = new FileWriter(file)) {
+                writer.write(detailsTextArea.getText());
+                showInfo("Export Réussi", 
+                    "Statistiques exportées avec succès!\n\n" +
+                    "Fichier: " + file.getName() + "\n" +
+                    "Emplacement: " + file.getParent());
+            } catch (IOException e) {
+                showError("Erreur d'export", "Impossible d'exporter: " + e.getMessage());
+            }
         }
     }
 
-    /**
-     * Met à jour les statistiques avec un nouveau gestionnaire.
-     */
-    public void setStatistics(StatisticsManager stats) {
-        this.statistics = stats;
-        loadStatistics();
-        updatePieChart();
-        updateProtocolTable();
-    }
-
-    /**
-     * Affiche une alerte d'information.
-     */
     private void showInfo(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
@@ -276,9 +293,6 @@ public class StatisticsController implements Initializable {
         alert.showAndWait();
     }
 
-    /**
-     * Affiche une alerte d'erreur.
-     */
     private void showError(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
@@ -303,7 +317,6 @@ public class StatisticsController implements Initializable {
         public int getPackets() { return packets; }
     }
 
-    // Getter
     public StatisticsManager getStatistics() {
         return statistics;
     }

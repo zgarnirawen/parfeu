@@ -1,16 +1,8 @@
 package com.mycompany.parfeu.Controller.Mahran;
 
 import com.mycompany.parfeu.App;
-import com.mycompany.parfeu.Model.Mahran.config.FirewallConfig;
 import com.mycompany.parfeu.Model.Mahran.generator.Packet;
 import com.mycompany.parfeu.Model.Mahran.generator.PacketInput;
-import com.mycompany.parfeu.Model.Rawen.analyzer.DetectionSignal;
-import com.mycompany.parfeu.Model.Rawen.analyzer.PacketAnalyzer;
-import com.mycompany.parfeu.Model.Rawen.decision.DecisionEngine;
-import com.mycompany.parfeu.Model.Rawen.decision.DecisionResult;
-import com.mycompany.parfeu.Model.Rawen.blockchain.Block;
-import com.mycompany.parfeu.Model.Rawen.persistence.StorageManager;
-
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -21,7 +13,6 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.List;
 import java.util.ResourceBundle;
 
 /**
@@ -42,6 +33,9 @@ public class GuidedPacketInputController implements Initializable {
     @FXML private Button initialFilterBtn;
     @FXML private TextArea packetDisplayArea;
 
+    // Variable pour stocker le paquet courant
+    private Packet currentPacket = null;
+    
     // Variable statique pour partager le paquet entre les contrôleurs
     private static Packet sharedPacket = null;
 
@@ -91,7 +85,9 @@ public class GuidedPacketInputController implements Initializable {
 
     private void setupActions() {
         // Bouton Générer
-        generateButton.setOnAction(event -> generatePacket());
+        if (generateButton != null) {
+            generateButton.setOnAction(event -> generatePacket());
+        }
 
         // Bouton Initial Filtering
         if (initialFilterBtn != null) {
@@ -105,6 +101,7 @@ public class GuidedPacketInputController implements Initializable {
                     App.loadMainMenu();
                 } catch (IOException e) {
                     showError("Erreur de navigation", "Impossible de retourner au menu principal");
+                    e.printStackTrace();
                 }
             });
         }
@@ -183,7 +180,9 @@ public class GuidedPacketInputController implements Initializable {
         sb.append(packet.getPayload()).append("\n\n");
         sb.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
         
-        packetDisplayArea.setText(sb.toString());
+        if (packetDisplayArea != null) {
+            packetDisplayArea.setText(sb.toString());
+        }
     }
 
     /**
