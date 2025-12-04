@@ -4,7 +4,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * Classe de données pour l'affichage dans le TableView de la blockchain.
+ * Classe de données pour l'affichage dans le TableView.
+ * 🔥 TOUS LES GETTERS DOIVENT ÊTRE PUBLICS pour PropertyValueFactory
  */
 public class BlockchainTableData {
     
@@ -29,10 +30,15 @@ public class BlockchainTableData {
         this.protocol = block.protocol();
         this.decisionsCount = block.decisions().size();
         
-        // Hash tronqué pour affichage
+        // Hash tronqué
         String hash = block.hash();
         this.hashFull = hash;
         this.hashShort = truncateHash(hash);
+        
+        // 🔥 DEBUG
+        System.out.println("BlockchainTableData créé: #" + index + 
+                         " | " + srcIP + " -> " + destIP + 
+                         " | " + protocol);
     }
 
     private String truncateHash(String hash) {
@@ -42,7 +48,7 @@ public class BlockchainTableData {
         return hash.substring(0, 8) + "..." + hash.substring(hash.length() - 8);
     }
 
-    // Getters pour JavaFX PropertyValueFactory
+    // 🔥 GETTERS PUBLICS (OBLIGATOIRE pour JavaFX PropertyValueFactory)
     public int getIndex() {
         return index;
     }
@@ -77,6 +83,7 @@ public class BlockchainTableData {
 
     @Override
     public String toString() {
-        return "Block #" + index + " [" + timestamp + "]";
+        return "Block #" + index + " [" + timestamp + "] " + 
+               srcIP + " -> " + destIP + " (" + protocol + ")";
     }
 }

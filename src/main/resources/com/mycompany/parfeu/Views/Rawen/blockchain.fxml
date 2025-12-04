@@ -6,19 +6,23 @@
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="800" prefWidth="950" style="-fx-background-color: linear-gradient(to bottom, #0D47A1, #1565C0, #1976D2);" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.parfeu.Controller.Rawen.BlockchainController">
+<AnchorPane prefHeight="800" prefWidth="950" 
+            style="-fx-background-color: linear-gradient(to bottom, #0D47A1, #1565C0, #1976D2);" 
+            xmlns="http://javafx.com/javafx/8.0.171" 
+            xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="com.mycompany.parfeu.Controller.Rawen.BlockchainController">
 
     <BorderPane prefHeight="800.0" prefWidth="950.0">
         <!-- HEADER -->
         <top>
-            <VBox alignment="CENTER" prefHeight="100.0" style="-fx-background-color: linear-gradient(to right, #FF6F00, #FF8F00);">
+            <VBox alignment="CENTER" prefHeight="100.0" 
+                  style="-fx-background-color: linear-gradient(to right, #FF6F00, #FF8F00);">
                 <padding>
                     <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
                 </padding>
@@ -43,7 +47,8 @@
                 </padding>
 
                 <!-- INFO PANEL -->
-                <HBox alignment="CENTER" spacing="30.0" style="-fx-background-color: rgba(255,255,255,0.95); -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 3);">
+                <HBox alignment="CENTER" spacing="30.0" 
+                      style="-fx-background-color: rgba(255,255,255,0.95); -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 3);">
                     <padding>
                         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                     </padding>
@@ -80,8 +85,9 @@
                     </VBox>
                 </HBox>
 
-                <!-- TABLE VIEW -->
-                <VBox spacing="10" style="-fx-background-color: rgba(255,255,255,0.95); -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 3);">
+                <!-- TABLE VIEW - 🔥 COULEURS CORRIGÉES -->
+                <VBox spacing="10" 
+                      style="-fx-background-color: rgba(255,255,255,0.95); -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 3);">
                     <padding>
                         <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
                     </padding>
@@ -92,48 +98,29 @@
                         </font>
                     </Label>
 
-                    <TableView fx:id="blockchainTable" prefHeight="450" style="-fx-background-color: #E3F2FD; -fx-background-radius: 8;">
+                    <!-- 🔥 TABLEAU AVEC STYLE CORRIGÉ -->
+                    <TableView fx:id="blockchainTable" prefHeight="450" 
+                              style="-fx-background-color: white;">
                         <columns>
-                            <TableColumn fx:id="colBlockIndex" prefWidth="80" text="Block #" style="-fx-background-color: #BBDEFB;">
-                                <cellValueFactory>
-                                    <javafx.scene.control.cell.PropertyValueFactory property="index" />
-                                </cellValueFactory>
+                            <TableColumn fx:id="colBlockIndex" prefWidth="80" text="Block #">
                             </TableColumn>
                             
-                            <TableColumn fx:id="colTimestamp" prefWidth="150" text="Timestamp" style="-fx-background-color: #BBDEFB;">
-                                <cellValueFactory>
-                                    <javafx.scene.control.cell.PropertyValueFactory property="timestamp" />
-                                </cellValueFactory>
+                            <TableColumn fx:id="colTimestamp" prefWidth="150" text="Timestamp">
                             </TableColumn>
                             
-                            <TableColumn fx:id="colSrcIP" prefWidth="120" text="Source IP" style="-fx-background-color: #FFE0B2;">
-                                <cellValueFactory>
-                                    <javafx.scene.control.cell.PropertyValueFactory property="srcIP" />
-                                </cellValueFactory>
+                            <TableColumn fx:id="colSrcIP" prefWidth="120" text="Source IP">
                             </TableColumn>
                             
-                            <TableColumn fx:id="colDestIP" prefWidth="120" text="Dest IP" style="-fx-background-color: #FFE0B2;">
-                                <cellValueFactory>
-                                    <javafx.scene.control.cell.PropertyValueFactory property="destIP" />
-                                </cellValueFactory>
+                            <TableColumn fx:id="colDestIP" prefWidth="120" text="Dest IP">
                             </TableColumn>
                             
-                            <TableColumn fx:id="colProtocol" prefWidth="80" text="Protocol" style="-fx-background-color: #BBDEFB;">
-                                <cellValueFactory>
-                                    <javafx.scene.control.cell.PropertyValueFactory property="protocol" />
-                                </cellValueFactory>
+                            <TableColumn fx:id="colProtocol" prefWidth="80" text="Protocol">
                             </TableColumn>
                             
-                            <TableColumn fx:id="colDecisions" prefWidth="80" text="Decisions" style="-fx-background-color: #FFE0B2;">
-                                <cellValueFactory>
-                                    <javafx.scene.control.cell.PropertyValueFactory property="decisionsCount" />
-                                </cellValueFactory>
+                            <TableColumn fx:id="colDecisions" prefWidth="80" text="Decisions">
                             </TableColumn>
                             
-                            <TableColumn fx:id="colHash" prefWidth="200" text="Hash" style="-fx-background-color: #BBDEFB;">
-                                <cellValueFactory>
-                                    <javafx.scene.control.cell.PropertyValueFactory property="hashShort" />
-                                </cellValueFactory>
+                            <TableColumn fx:id="colHash" prefWidth="200" text="Hash">
                             </TableColumn>
                         </columns>
                         <columnResizePolicy>
@@ -147,14 +134,23 @@
 
         <!-- BOTTOM -->
         <bottom>
-            <HBox alignment="CENTER" prefHeight="80.0" prefWidth="911.0" spacing="20.0" style="-fx-background-color: #263238;">
+            <HBox alignment="CENTER" prefHeight="80.0" prefWidth="911.0" spacing="20.0" 
+                  style="-fx-background-color: #263238;">
                 <padding>
                     <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                 </padding>
-                <Button fx:id="backBtn" prefHeight="45" prefWidth="180" style="-fx-background-color: #455A64; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-font-size: 14;" text="← BACK TO MENU" />
-                <Button fx:id="refreshBtn" prefHeight="45" prefWidth="150" style="-fx-background-color: linear-gradient(to right, #1976D2, #2196F3); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-font-size: 14;" text="🔄 REFRESH" />
-                <Button fx:id="verifyBtn" prefHeight="45" prefWidth="180" style="-fx-background-color: linear-gradient(to right, #FF6F00, #FF8F00); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-font-size: 14; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 3);" text="✓ VERIFY CHAIN" />
-                <Button fx:id="exportBtn" prefHeight="45" prefWidth="150" style="-fx-background-color: linear-gradient(to right, #1565C0, #1976D2); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-font-size: 14;" text="📤 EXPORT" />
+                <Button fx:id="backBtn" prefHeight="45" prefWidth="180" 
+                        style="-fx-background-color: #455A64; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-font-size: 14;" 
+                        text="← BACK TO MENU" />
+                <Button fx:id="refreshBtn" prefHeight="45" prefWidth="150" 
+                        style="-fx-background-color: linear-gradient(to right, #1976D2, #2196F3); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-font-size: 14;" 
+                        text="🔄 REFRESH" />
+                <Button fx:id="verifyBtn" prefHeight="45" prefWidth="180" 
+                        style="-fx-background-color: linear-gradient(to right, #FF6F00, #FF8F00); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-font-size: 14; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 3);" 
+                        text="✓ VERIFY CHAIN" />
+                <Button fx:id="exportBtn" prefHeight="45" prefWidth="150" 
+                        style="-fx-background-color: linear-gradient(to right, #1565C0, #1976D2); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-font-size: 14;" 
+                        text="📤 EXPORT" />
             </HBox>
         </bottom>
     </BorderPane>

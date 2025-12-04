@@ -2,7 +2,7 @@ package com.mycompany.parfeu.Controller.Mahran;
 
 import com.mycompany.parfeu.App;
 import com.mycompany.parfeu.Model.Mahran.config.FirewallConfig;
-import com.mycompany.parfeu.Model.Rawen.persistence.StorageManager;
+import com.mycompany.parfeu.Model.Rawen.persistence.SharedDataManager;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -17,7 +17,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 
 /**
- * Contrôleur pour la configuration du pare-feu - Version complète et fonctionnelle.
+ * Contrôleur pour la configuration du pare-feu - Version avec persistance
  */
 public class ConfigurationController implements Initializable {
 
@@ -44,20 +44,28 @@ public class ConfigurationController implements Initializable {
     @FXML private Button resetConfigBtn;
 
     private FirewallConfig config;
-    private StorageManager storageManager;
+    private SharedDataManager sharedData;
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         try {
-            config = new FirewallConfig();
-            storageManager = new StorageManager();
+            System.out.println("\n⚙️  ========== CONFIGURATION CONTROLLER INIT ==========");
             
+            // 🔥 UTILISER LE SHARED DATA MANAGER
+            sharedData = SharedDataManager.getInstance();
+            
+            // Initialiser les composants
             initializeComponents();
+            
+            // 🔥 CHARGER LA CONFIGURATION DEPUIS LE FICHIER
             loadConfiguration();
+            
+            // Configurer les boutons
             setupButtonActions();
             
-            System.out.println("✓ ConfigurationController initialisé avec succès");
+            System.out.println("✅ ConfigurationController initialisé avec configuration chargée");
+            System.out.println("================================================\n");
         } catch (Exception e) {
             System.err.println("✗ Erreur lors de l'initialisation : " + e.getMessage());
             e.printStackTrace();
@@ -78,23 +86,44 @@ public class ConfigurationController implements Initializable {
         }
     }
 
+    /**
+     * 🔥 CHARGEMENT DE LA CONFIGURATION depuis SharedDataManager
+     */
     private void loadConfiguration() {
         try {
-            // Essayer de charger la configuration existante
-            FirewallConfig loadedConfig = storageManager.loadConfiguration();
-            if (loadedConfig != null) {
-                config = loadedConfig;
-                System.out.println("✓ Configuration chargée depuis le fichier");
+            System.out.println("📋 Chargement de la configuration...");
+            
+            // Charger depuis SharedDataManager (qui a déjà chargé depuis le fichier)
+            config = sharedData.getConfiguration();
+            
+            if (config == null) {
+                System.out.println("  ⚠️  Configuration non trouvée, création par défaut");
+                config = new FirewallConfig();
+            } else {
+                System.out.println("  ✓ Configuration chargée:");
+                System.out.println("    - Seuil blocage: " + config.getBlockThreshold());
+                System.out.println("    - Seuil alerte: " + config.getAlertThreshold());
+                System.out.println("    - Min size: " + config.getMinPacketSize());
+                System.out.println("    - Max size: " + config.getMaxPacketSize());
+                System.out.println("    - Mots suspects: " + config.getSuspiciousWords().size());
+                System.out.println("    - IPs blacklistées: " + config.getBlacklistedIPs().size());
+                System.out.println("    - Ports surveillés: " + config.getMonitoredPorts().size());
             }
         } catch (Exception e) {
-            System.out.println("ℹ Utilisation de la configuration par défaut");
+            System.out.println("  ⚠️  Erreur de chargement, utilisation des valeurs par défaut");
+            config = new FirewallConfig();
         }
         
         // Appliquer la configuration à l'interface
         applyConfigToUI();
     }
 
+    /**
+     * Applique la configuration chargée à l'interface
+     */
     private void applyConfigToUI() {
+        System.out.println("🎨 Application de la configuration à l'interface...");
+        
         if (blockThresholdSpinner != null) {
             blockThresholdSpinner.getValueFactory().setValue(config.getBlockThreshold());
         }
@@ -114,17 +143,22 @@ public class ConfigurationController implements Initializable {
         if (suspiciousWordsList != null) {
             suspiciousWordsList.getItems().clear();
             suspiciousWordsList.getItems().addAll(config.getSuspiciousWords());
+            System.out.println("  ✓ " + config.getSuspiciousWords().size() + " mots suspects chargés");
         }
         
         if (blacklistedIPsList != null) {
             blacklistedIPsList.getItems().clear();
             blacklistedIPsList.getItems().addAll(config.getBlacklistedIPs());
+            System.out.println("  ✓ " + config.getBlacklistedIPs().size() + " IPs blacklistées chargées");
         }
         
         if (monitoredPortsList != null) {
             monitoredPortsList.getItems().clear();
             monitoredPortsList.getItems().addAll(config.getMonitoredPorts());
+            System.out.println("  ✓ " + config.getMonitoredPorts().size() + " ports surveillés chargés");
         }
+        
+        System.out.println("✓ Interface mise à jour avec la configuration");
     }
 
     private void setupButtonActions() {
@@ -278,10 +312,23 @@ public class ConfigurationController implements Initializable {
         }
     }
 
+    /**
+     * 🔥 SAUVEGARDE via SharedDataManager
+     */
     private void saveConfiguration() {
         try {
-            storageManager.saveConfiguration(config);
-            showSuccess("Sauvegardé", "Configuration sauvegardée avec succès!");
+            System.out.println("\n💾 Sauvegarde de la configuration...");
+            
+            // Sauvegarder via SharedDataManager
+            sharedData.saveConfiguration(config);
+            
+            showSuccess("Sauvegardé", 
+                "Configuration sauvegardée avec succès!\n\n" +
+                "Seuil blocage: " + config.getBlockThreshold() + "\n" +
+                "Seuil alerte: " + config.getAlertThreshold() + "\n" +
+                "Mots suspects: " + config.getSuspiciousWords().size() + "\n" +
+                "IPs blacklistées: " + config.getBlacklistedIPs().size());
+            
             System.out.println("✓ Configuration sauvegardée");
         } catch (Exception e) {
             showError("Erreur", "Impossible de sauvegarder: " + e.getMessage());
@@ -290,12 +337,9 @@ public class ConfigurationController implements Initializable {
 
     private void reloadConfiguration() {
         try {
-            FirewallConfig loadedConfig = storageManager.loadConfiguration();
-            if (loadedConfig != null) {
-                config = loadedConfig;
-                applyConfigToUI();
-                showSuccess("Chargé", "Configuration rechargée!");
-            }
+            System.out.println("\n🔄 Rechargement de la configuration...");
+            loadConfiguration();
+            showSuccess("Chargé", "Configuration rechargée depuis le fichier!");
         } catch (Exception e) {
             showError("Erreur", "Impossible de charger: " + e.getMessage());
         }

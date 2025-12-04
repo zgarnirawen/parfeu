@@ -17,6 +17,7 @@ com\mycompany\parfeu\Controller\Rawen\StatisticsController.class
 com\mycompany\parfeu\Model\Rawen\exception\DatabaseException.class
 com\mycompany\parfeu\Model\Rawen\decision\DecisionResult.class
 com\mycompany\parfeu\Model\Rawen\blockchain\Block.class
+com\mycompany\parfeu\Model\Rawen\persistence\SharedDataManager.class
 com\mycompany\parfeu\Model\Mahran\generator\PacketInput.class
 com\mycompany\parfeu\Model\Rawen\decision\DecisionEngine.class
 com\mycompany\parfeu\Model\Rawen\analyzer\WordPatternSignal.class

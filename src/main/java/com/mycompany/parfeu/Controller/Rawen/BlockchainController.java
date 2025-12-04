@@ -10,6 +10,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.FileChooser;
 
 import java.io.File;
@@ -48,96 +49,196 @@ public class BlockchainController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        System.out.println("\n🔗 ========== BLOCKCHAIN CONTROLLER INIT ==========");
+        
         // Récupère la blockchain partagée
         sharedData = SharedDataManager.getInstance();
         blockchain = sharedData.getBlockchain();
         tableData = FXCollections.observableArrayList();
 
-        setupTable();
+        // 🔥 ORDRE CRITIQUE : D'abord configurer, PUIS charger
+        setupTableColumns();
         loadBlockchain();
         setupButtons();
+        
+        System.out.println("✅ BlockchainController initialisé");
+        System.out.println("   Blocs dans la blockchain: " + blockchain.getSize());
+        System.out.println("   Lignes dans le tableau: " + tableData.size());
+        System.out.println("================================================\n");
     }
 
     /**
-     * Configure la TableView avec les colonnes et le style des lignes.
+     * 🔥 CONFIGURATION CRITIQUE DES COLONNES
      */
-    private void setupTable() {
-        colBlockIndex.setCellValueFactory(new javafx.scene.control.cell.PropertyValueFactory<>("index"));
-        colTimestamp.setCellValueFactory(new javafx.scene.control.cell.PropertyValueFactory<>("timestamp"));
-        colSrcIP.setCellValueFactory(new javafx.scene.control.cell.PropertyValueFactory<>("srcIP"));
-        colDestIP.setCellValueFactory(new javafx.scene.control.cell.PropertyValueFactory<>("destIP"));
-        colProtocol.setCellValueFactory(new javafx.scene.control.cell.PropertyValueFactory<>("protocol"));
-        colDecisions.setCellValueFactory(new javafx.scene.control.cell.PropertyValueFactory<>("decisionsCount"));
-        colHash.setCellValueFactory(new javafx.scene.control.cell.PropertyValueFactory<>("hashShort"));
+    private void setupTableColumns() {
+        System.out.println("🔧 Configuration des colonnes...");
+        
+        // 🔥 VÉRIFIER QUE LES COLONNES EXISTENT
+        if (colBlockIndex == null) {
+            System.err.println("✗ ERREUR: colBlockIndex est NULL!");
+            return;
+        }
+        
+        // Configuration EXPLICITE de chaque colonne
+        colBlockIndex.setCellValueFactory(new PropertyValueFactory<>("index"));
+        colTimestamp.setCellValueFactory(new PropertyValueFactory<>("timestamp"));
+        colSrcIP.setCellValueFactory(new PropertyValueFactory<>("srcIP"));
+        colDestIP.setCellValueFactory(new PropertyValueFactory<>("destIP"));
+        colProtocol.setCellValueFactory(new PropertyValueFactory<>("protocol"));
+        colDecisions.setCellValueFactory(new PropertyValueFactory<>("decisionsCount"));
+        colHash.setCellValueFactory(new PropertyValueFactory<>("hashShort"));
 
-        blockchainTable.setItems(tableData);
+        System.out.println("  ✓ CellValueFactory configurées");
 
-        // Style des lignes selon le type de bloc
-        blockchainTable.setRowFactory(tv -> new TableRow<>() {
+        // 🔥 STYLE DU TABLEAU - Texte NOIR visible
+        if (blockchainTable != null) {
+            blockchainTable.setStyle(
+                "-fx-background-color: white;" +
+                "-fx-text-fill: black !important;" +
+                "-fx-font-size: 13px;"
+            );
+            
+            // Lier les données
+            blockchainTable.setItems(tableData);
+            System.out.println("  ✓ Données liées au tableau");
+        }
+
+        // 🔥 FACTORY POUR LES LIGNES - Couleurs avec texte noir
+        blockchainTable.setRowFactory(tv -> new TableRow<BlockchainTableData>() {
             @Override
             protected void updateItem(BlockchainTableData item, boolean empty) {
                 super.updateItem(item, empty);
                 if (item == null || empty) {
                     setStyle("");
-                } else if (item.getIndex() == 0) {
-                    setStyle("-fx-background-color: #d4edda;"); // Genesis
-                } else if (item.getDecisionsCount() == 0) {
-                    setStyle("-fx-background-color: #f8f9fa;"); // Vide
+                    setText("");
                 } else {
-                    setStyle("-fx-background-color: white;"); // Normal
+                    // Texte NOIR sur tous les fonds
+                    if (item.getIndex() == 0) {
+                        // Genesis - vert
+                        setStyle("-fx-background-color: #d4edda; -fx-text-fill: #000000;");
+                    } else if (item.getDecisionsCount() == 0) {
+                        // Vide - gris
+                        setStyle("-fx-background-color: #f8f9fa; -fx-text-fill: #000000;");
+                    } else {
+                        // Normal - blanc
+                        setStyle("-fx-background-color: #ffffff; -fx-text-fill: #000000;");
+                    }
                 }
             }
         });
+        
+        // 🔥 FORCER LE STYLE DES CELLULES
+        colBlockIndex.setStyle("-fx-text-fill: black;");
+        colTimestamp.setStyle("-fx-text-fill: black;");
+        colSrcIP.setStyle("-fx-text-fill: black;");
+        colDestIP.setStyle("-fx-text-fill: black;");
+        colProtocol.setStyle("-fx-text-fill: black;");
+        colDecisions.setStyle("-fx-text-fill: black;");
+        colHash.setStyle("-fx-text-fill: black;");
+        
+        System.out.println("  ✓ Styles appliqués (texte noir)");
     }
 
     /**
-     * Charge la blockchain dans le TableView.
+     * 🔥 CHARGEMENT DES DONNÉES
      */
     private void loadBlockchain() {
+        System.out.println("\n📦 Chargement de la blockchain...");
+        
         tableData.clear();
         List<Block> chain = blockchain.getChain();
-        for (Block block : chain) {
-            tableData.add(new BlockchainTableData(block));
+        
+        System.out.println("   Nombre de blocs: " + chain.size());
+        
+        if (chain.isEmpty()) {
+            System.out.println("   ⚠️ Blockchain vide!");
+            return;
         }
+        
+        // Ajouter chaque bloc au tableau
+        for (int i = 0; i < chain.size(); i++) {
+            Block block = chain.get(i);
+            BlockchainTableData data = new BlockchainTableData(block);
+            tableData.add(data);
+            
+            System.out.println("   ✓ Bloc #" + block.index() + 
+                             " | " + data.getSrcIP() + 
+                             " -> " + data.getDestIP() + 
+                             " | " + data.getProtocol());
+        }
+        
+        System.out.println("   📊 Total dans tableData: " + tableData.size());
+        
+        // Forcer le rafraîchissement
+        if (blockchainTable != null) {
+            blockchainTable.refresh();
+            System.out.println("   🔄 Tableau rafraîchi");
+        }
+        
+        // Mettre à jour le panneau d'info
         updateInfoPanel();
-        blockchainTable.refresh();
+        
+        // 🔥 DEBUG FINAL
+        System.out.println("\n🔍 VÉRIFICATION FINALE:");
+        System.out.println("   - Blockchain size: " + blockchain.getSize());
+        System.out.println("   - TableData size: " + tableData.size());
+        System.out.println("   - Table items: " + (blockchainTable.getItems() != null ? blockchainTable.getItems().size() : "NULL"));
+        
+        if (tableData.isEmpty()) {
+            System.err.println("   ✗ PROBLÈME: tableData est VIDE!");
+        } else {
+            System.out.println("   ✓ Données chargées correctement");
+        }
     }
 
     /**
-     * Met à jour le panneau d'information.
+     * Met à jour le panneau d'information
      */
     private void updateInfoPanel() {
         totalBlocksLabel.setText(String.valueOf(blockchain.getSize()));
 
         boolean isValid = blockchain.isChainValid();
         chainStatusLabel.setText(isValid ? "✓ VALID" : "✗ INVALID");
-        chainStatusLabel.setStyle(isValid ? "-fx-text-fill: #27ae60; -fx-font-weight: bold;"
-                                          : "-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
+        chainStatusLabel.setStyle(isValid ? 
+            "-fx-text-fill: #27ae60; -fx-font-weight: bold;" :
+            "-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
 
         Block lastBlock = blockchain.getLastBlock();
         lastUpdateLabel.setText(dateFormat.format(new Date(lastBlock.timestamp())));
     }
 
     /**
-     * Configure les actions des boutons.
+     * Configure les boutons
      */
     private void setupButtons() {
         backBtn.setOnAction(event -> {
-            try { App.loadMainMenu(); }
-            catch (IOException e) { showError("Erreur", "Impossible de retourner au menu."); }
+            try { 
+                App.loadMainMenu(); 
+            } catch (IOException e) { 
+                showError("Erreur", "Impossible de retourner au menu"); 
+            }
         });
 
         refreshBtn.setOnAction(event -> {
+            System.out.println("\n🔄 REFRESH Manuel");
+            // Recharger la blockchain
+            blockchain = sharedData.getBlockchain();
             loadBlockchain();
-            showInfo("Rafraîchi", "Blockchain rechargée avec succès !");
+            showInfo("Rafraîchi", 
+                "Blockchain rechargée!\n\n" +
+                "Total blocs: " + blockchain.getSize() + "\n" +
+                "Affichés: " + tableData.size());
         });
 
         verifyBtn.setOnAction(event -> {
             boolean valid = blockchain.isChainValid();
             if (valid) {
-                showInfo("✓ Blockchain Valide", "Tous les blocs sont valides et la chaîne est intacte.");
+                showInfo("✓ Blockchain Valide", 
+                    "Tous les blocs sont valides.\n\n" +
+                    "Total blocs: " + blockchain.getSize());
             } else {
-                showError("✗ Blockchain Invalide", "La blockchain a été compromise !");
+                showError("✗ Blockchain Invalide", 
+                    "La blockchain a été compromise!");
             }
             updateInfoPanel();
         });
@@ -146,24 +247,30 @@ public class BlockchainController implements Initializable {
     }
 
     /**
-     * Exporte la blockchain vers un fichier CSV.
+     * Export CSV
      */
     private void exportToCSV() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Exporter la Blockchain");
-        fileChooser.setInitialFileName("blockchain_" + new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()) + ".csv");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Fichiers CSV", "*.csv"));
+        fileChooser.setInitialFileName("blockchain_export_" + 
+            new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()) + ".csv");
+        fileChooser.getExtensionFilters().add(
+            new FileChooser.ExtensionFilter("CSV", "*.csv"));
 
         File file = fileChooser.showSaveDialog(exportBtn.getScene().getWindow());
+        
         if (file != null) {
             try (FileWriter writer = new FileWriter(file)) {
                 writer.write(Block.getCSVHeader() + "\n");
                 for (Block block : blockchain.getChain()) {
                     writer.write(block.toCSV() + "\n");
                 }
-                showInfo("Export Réussi", "Blockchain exportée avec succès !");
+                showInfo("Export Réussi", 
+                    "Blockchain exportée!\n\n" +
+                    "Fichier: " + file.getName() + "\n" +
+                    "Blocs: " + blockchain.getSize());
             } catch (IOException e) {
-                showError("Erreur", "Impossible d'exporter : " + e.getMessage());
+                showError("Erreur", "Impossible d'exporter: " + e.getMessage());
             }
         }
     }
@@ -171,7 +278,6 @@ public class BlockchainController implements Initializable {
     private void showInfo(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
-        alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();
     }
@@ -179,10 +285,11 @@ public class BlockchainController implements Initializable {
     private void showError(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
-        alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();
     }
 
-    public BlockChain getBlockchain() { return blockchain; }
+    public BlockChain getBlockchain() { 
+        return blockchain; 
+    }
 }
