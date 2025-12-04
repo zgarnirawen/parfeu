@@ -1,5 +1,5 @@
 package com.mycompany.parfeu;
-
+import  com.mycompany.parfeu.Model.Rawen.persistence.SharedDataManager ;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -14,14 +14,16 @@ public class App extends Application {
     private static Stage primaryStage;
 
     @Override
-    public void start(Stage stage) throws IOException {
-        primaryStage = stage;
-        // Chemin complet avec extension .fxml
-        scene = new Scene(loadFXML("/com/mycompany/parfeu/Views/Mahran/mainvue.fxml"), 800, 600);
-        stage.setScene(scene);
-        stage.setTitle("Firewall Application");
-        stage.show();
-    }
+public void start(Stage stage) throws IOException {
+    primaryStage = stage;
+    
+    SharedDataManager.getInstance(); // Ceci initialise et charge tout
+    
+    scene = new Scene(loadFXML("/com/mycompany/parfeu/Views/Mahran/mainvue.fxml"), 800, 600);
+    stage.setScene(scene);
+    stage.setTitle("Firewall Application");
+    stage.show();
+}
 
     static void setRoot(String fxmlPath) throws IOException {
         scene.setRoot(loadFXML(fxmlPath));
