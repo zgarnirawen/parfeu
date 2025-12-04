@@ -5,8 +5,12 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:id="rootPane" prefWidth="650" prefHeight="800" style="-fx-background-color: linear-gradient(to bottom, #E3F2FD, #FFF3E0);">
-
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.mycompany.parfeu.Controller.Mahran.ConfigurationController"
+            fx:id="rootPane"
+            prefWidth="650"
+            prefHeight="800"
+            style="-fx-background-color: linear-gradient(to bottom, #E3F2FD, #FFF3E0);">
     <!-- Header -->
     <VBox fx:id="headerBox" prefHeight="80" spacing="10" AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" style="-fx-background-color: linear-gradient(to right, #1976D2, #FF6F00); -fx-alignment: center; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8,0,0,2);">
         <Label text="⚙️ Pare-feu Configurations" style="-fx-text-fill: white;">

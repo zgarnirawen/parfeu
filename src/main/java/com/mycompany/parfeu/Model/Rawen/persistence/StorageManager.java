@@ -17,12 +17,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 /**
- * Gestionnaire centralisé pour les 3 fichiers de stockage :
- * 1. historique_blocs.csv - Historique complet de tous les blocs
- * 2. statistiques.txt - Statistiques du pare-feu
- * 3. configuration.properties - Configuration du pare-feu
- * 
- * @author ZGARNI
+ * Gestionnaire centralisé pour les 3 fichiers de stockage - VERSION CORRIGÉE
  */
 public final class StorageManager {
     
@@ -34,9 +29,6 @@ public final class StorageManager {
     private final Path dataDirectory;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    /**
-     * Constructeur - Crée le répertoire de données si nécessaire.
-     */
     public StorageManager() throws DatabaseException {
         this.dataDirectory = Paths.get(DATA_DIR);
         try {
@@ -49,9 +41,10 @@ public final class StorageManager {
     }
     
     /**
-     * Initialise les fichiers s'ils n'existent pas.
+     * 🔥 CORRECTION : Initialise TOUS les fichiers s'ils n'existent pas
      */
     private void initializeFiles() throws DatabaseException {
+        // Initialiser historique
         Path historyPath = dataDirectory.resolve(HISTORY_FILE);
         if (!Files.exists(historyPath)) {
             try (BufferedWriter writer = new BufferedWriter(
@@ -66,19 +59,28 @@ public final class StorageManager {
                 throw new DatabaseException("Erreur création fichier historique", e);
             }
         }
+        
+        // 🔥 NOUVEAU : Initialiser configuration si elle n'existe pas
+        Path configPath = dataDirectory.resolve(CONFIG_FILE);
+        if (!Files.exists(configPath)) {
+            try {
+                FirewallConfig defaultConfig = new FirewallConfig();
+                saveConfiguration(defaultConfig);
+                System.out.println("✓ Fichier configuration créé avec valeurs par défaut");
+            } catch (Exception e) {
+                System.err.println("⚠ Impossible de créer configuration par défaut: " + e.getMessage());
+            }
+        }
     }
 
     // ========== GESTION HISTORIQUE BLOCS ==========
 
-    /**
-     * Sauvegarde un bloc dans l'historique (mode append).
-     */
     public void saveBlockToHistory(Block block) throws DatabaseException {
         Path historyPath = dataDirectory.resolve(HISTORY_FILE);
         
         try (BufferedWriter writer = new BufferedWriter(
                 new OutputStreamWriter(
-                    new FileOutputStream(historyPath.toFile(), true), // append
+                    new FileOutputStream(historyPath.toFile(), true),
                     StandardCharsets.UTF_8
                 ))) {
             
@@ -92,9 +94,6 @@ public final class StorageManager {
         }
     }
 
-    /**
-     * Charge tous les blocs depuis l'historique.
-     */
     public List<String> loadBlockHistory() throws DatabaseException {
         Path historyPath = dataDirectory.resolve(HISTORY_FILE);
         
@@ -104,7 +103,7 @@ public final class StorageManager {
         }
         
         try (Stream<String> lines = Files.lines(historyPath, StandardCharsets.UTF_8)) {
-            return lines.skip(1) // Ignorer l'en-tête
+            return lines.skip(1)
                        .filter(line -> !line.trim().isEmpty())
                        .toList();
         } catch (IOException e) {
@@ -112,9 +111,6 @@ public final class StorageManager {
         }
     }
 
-    /**
-     * Compte le nombre de blocs dans l'historique.
-     */
     public long countBlocks() throws DatabaseException {
         Path historyPath = dataDirectory.resolve(HISTORY_FILE);
         
@@ -131,9 +127,6 @@ public final class StorageManager {
         }
     }
 
-    /**
-     * Efface tout l'historique (garde uniquement l'en-tête).
-     */
     public void clearHistory() throws DatabaseException {
         Path historyPath = dataDirectory.resolve(HISTORY_FILE);
         
@@ -155,9 +148,6 @@ public final class StorageManager {
 
     // ========== GESTION STATISTIQUES ==========
 
-    /**
-     * Sauvegarde les statistiques complètes.
-     */
     public void saveStatistics(StatisticsManager stats) throws DatabaseException {
         Path statsPath = dataDirectory.resolve(STATS_FILE);
         
@@ -172,7 +162,6 @@ public final class StorageManager {
             writer.write("║         Généré le : " + LocalDateTime.now().format(formatter) + "                   ║\n");
             writer.write("╚══════════════════════════════════════════════════════════════╝\n\n");
             
-            // Statistiques générales
             writer.write("📊 STATISTIQUES GÉNÉRALES\n");
             writer.write("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
             writer.write(String.format("Total paquets traités : %d\n", stats.getTotalPackets()));
@@ -181,7 +170,6 @@ public final class StorageManager {
             writer.write(String.format("  ⚠ Alertes           : %d\n", stats.getAlertedPackets()));
             writer.write(String.format("  📝 Journalisés      : %d\n\n", stats.getLoggedPackets()));
             
-            // Taux
             if (stats.getTotalPackets() > 0) {
                 double acceptRate = (stats.getAcceptedPackets() * 100.0) / stats.getTotalPackets();
                 double blockRate = (stats.getDroppedPackets() * 100.0) / stats.getTotalPackets();
@@ -194,7 +182,6 @@ public final class StorageManager {
                 writer.write(String.format("  Taux d'alerte      : %.2f%%\n\n", alertRate));
             }
             
-            // Statistiques par IP (top 5)
             var ipStats = stats.getIPStatistics();
             if (ipStats != null && !ipStats.isEmpty()) {
                 writer.write("🌐 TOP 5 IP SOURCES\n");
@@ -225,9 +212,6 @@ public final class StorageManager {
         }
     }
 
-    /**
-     * Charge les statistiques depuis le fichier.
-     */
     public String loadStatistics() throws DatabaseException {
         Path statsPath = dataDirectory.resolve(STATS_FILE);
         
@@ -245,7 +229,7 @@ public final class StorageManager {
     // ========== GESTION CONFIGURATION ==========
 
     /**
-     * Sauvegarde la configuration du pare-feu.
+     * 🔥 CORRECTION : Sauvegarde complète avec TOUTES les propriétés
      */
     public void saveConfiguration(FirewallConfig config) throws DatabaseException {
         Path configPath = dataDirectory.resolve(CONFIG_FILE);
@@ -281,6 +265,10 @@ public final class StorageManager {
                     .orElse("") + "\n");
             
             System.out.println("✓ Configuration sauvegardée dans " + configPath);
+            System.out.println("  - Seuil blocage: " + config.getBlockThreshold());
+            System.out.println("  - Seuil alerte: " + config.getAlertThreshold());
+            System.out.println("  - Min size: " + config.getMinPacketSize());
+            System.out.println("  - Max size: " + config.getMaxPacketSize());
             
         } catch (IOException e) {
             throw new DatabaseException("Erreur lors de la sauvegarde de la configuration", e);
@@ -288,7 +276,7 @@ public final class StorageManager {
     }
 
     /**
-     * Charge la configuration depuis le fichier.
+     * 🔥 CORRECTION : Chargement complet avec gestion d'erreurs
      */
     public FirewallConfig loadConfiguration() throws DatabaseException {
         Path configPath = dataDirectory.resolve(CONFIG_FILE);
@@ -319,11 +307,58 @@ public final class StorageManager {
                     String key = parts[0].trim();
                     String value = parts[1].trim();
                     
-                    switch (key) {
-                        case "blockThreshold" -> config.setBlockThreshold(Integer.parseInt(value));
-                        case "alertThreshold" -> config.setAlertThreshold(Integer.parseInt(value));
-                        case "minPacketSize" -> config.setMinPacketSize(Integer.parseInt(value));
-                        case "maxPacketSize" -> config.setMaxPacketSize(Integer.parseInt(value));
+                    try {
+                        switch (key) {
+                            case "blockThreshold" -> {
+                                int val = Integer.parseInt(value);
+                                config.setBlockThreshold(val);
+                                System.out.println("  ✓ Chargé blockThreshold: " + val);
+                            }
+                            case "alertThreshold" -> {
+                                int val = Integer.parseInt(value);
+                                config.setAlertThreshold(val);
+                                System.out.println("  ✓ Chargé alertThreshold: " + val);
+                            }
+                            case "minPacketSize" -> {
+                                int val = Integer.parseInt(value);
+                                config.setMinPacketSize(val);
+                                System.out.println("  ✓ Chargé minPacketSize: " + val);
+                            }
+                            case "maxPacketSize" -> {
+                                int val = Integer.parseInt(value);
+                                config.setMaxPacketSize(val);
+                                System.out.println("  ✓ Chargé maxPacketSize: " + val);
+                            }
+                            case "suspiciousWords" -> {
+                                if (!value.isEmpty()) {
+                                    String[] words = value.split(",");
+                                    for (String word : words) {
+                                        config.addSuspiciousWord(word.trim());
+                                    }
+                                    System.out.println("  ✓ Chargé " + words.length + " mots suspects");
+                                }
+                            }
+                            case "blacklistedIPs" -> {
+                                if (!value.isEmpty()) {
+                                    String[] ips = value.split(",");
+                                    for (String ip : ips) {
+                                        config.addBlacklistedIP(ip.trim());
+                                    }
+                                    System.out.println("  ✓ Chargé " + ips.length + " IPs blacklistées");
+                                }
+                            }
+                            case "monitoredPorts" -> {
+                                if (!value.isEmpty()) {
+                                    String[] ports = value.split(",");
+                                    for (String port : ports) {
+                                        config.addMonitoredPort(Integer.parseInt(port.trim()));
+                                    }
+                                    System.out.println("  ✓ Chargé " + ports.length + " ports surveillés");
+                                }
+                            }
+                        }
+                    } catch (NumberFormatException e) {
+                        System.err.println("⚠ Valeur invalide pour " + key + ": " + value);
                     }
                 }
             }
@@ -338,16 +373,10 @@ public final class StorageManager {
 
     // ========== UTILITAIRES ==========
 
-    /**
-     * Retourne le chemin absolu du répertoire de données.
-     */
     public String getDataDirectoryPath() {
         return dataDirectory.toAbsolutePath().toString();
     }
 
-    /**
-     * Vérifie si les fichiers existent.
-     */
     public boolean historyExists() {
         return Files.exists(dataDirectory.resolve(HISTORY_FILE));
     }
@@ -360,9 +389,6 @@ public final class StorageManager {
         return Files.exists(dataDirectory.resolve(CONFIG_FILE));
     }
 
-    /**
-     * Retourne la taille des fichiers en bytes.
-     */
     public long getHistoryFileSize() {
         try {
             Path path = dataDirectory.resolve(HISTORY_FILE);
@@ -372,9 +398,6 @@ public final class StorageManager {
         }
     }
 
-    /**
-     * Efface tous les fichiers.
-     */
     public void clearAll() throws DatabaseException {
         try {
             clearHistory();
