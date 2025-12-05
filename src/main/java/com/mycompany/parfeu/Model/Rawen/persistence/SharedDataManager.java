@@ -254,21 +254,34 @@ public class SharedDataManager {
     /**
      * Sauvegarde tout
      */
-    private void saveAllData() throws DatabaseException {
-        Block lastBlock = blockchain.getLastBlock();
-        if (lastBlock.index() > 0) {
-            storage.saveBlockToHistory(lastBlock);
+    /**
+ * 🔥 SAUVEGARDE COMPLÈTE : tous les blocs, stats et config
+ */
+private void saveAllData() throws DatabaseException {
+    // 1️⃣ Sauvegarder tous les blocs
+    List<Block> chain = blockchain.getChain();
+    if (!chain.isEmpty()) {
+        // Effacer l'historique existant pour éviter doublons
+        storage.clearHistory();
+        for (Block block : chain) {
+            storage.saveBlockToHistory(block);
         }
-        
-        storage.saveStatistics(statistics);
-        
-        if (configuration != null) {
-            storage.saveConfiguration(configuration);
-        }
-        
-        System.out.println("  💾 Fichiers mis à jour");
+        System.out.println("✓ Tous les blocs sauvegardés (" + chain.size() + ")");
+    } else {
+        System.out.println("⚠ Aucune blockchain à sauvegarder");
     }
-    
+
+    // 2️⃣ Sauvegarder les statistiques
+    storage.saveStatistics(statistics);
+
+    // 3️⃣ Sauvegarder la configuration
+    if (configuration != null) {
+        storage.saveConfiguration(configuration);
+    }
+
+    System.out.println("💾 Sauvegarde complète terminée");
+}
+
     /**
      * Sauvegarde configuration
      */
