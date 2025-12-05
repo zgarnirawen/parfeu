@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 🔥 VERSION FINALE CORRIGÉE - Restauration complète des données
+ * 🔥 VERSION FINALE CORRIGÉE - Restauration avec nouveau parsing CSV
  */
 public final class SharedDataManager {
     
@@ -29,7 +29,6 @@ public final class SharedDataManager {
     private boolean isReconstructing = false;
     
     private SharedDataManager() {
-        // 🔥 INITIALISATION IMMÉDIATE DES CHAMPS FINAL
         this.statistics = new StatisticsManager();
         
         StorageManager tempStorage = null;
@@ -50,21 +49,16 @@ public final class SharedDataManager {
         } catch (DatabaseException e) {
             System.err.println("⚠️  Erreur init: " + e.getMessage());
             e.printStackTrace();
-            // Créer un StorageManager par défaut si l'initialisation échoue
             try {
                 tempStorage = new StorageManager();
             } catch (DatabaseException ex) {
                 System.err.println("⚠️  Impossible de créer StorageManager: " + ex.getMessage());
             }
         } finally {
-            // Assigner le storage (jamais null grâce au try-catch)
             this.storage = tempStorage != null ? tempStorage : createDummyStorage();
         }
     }
     
-    /**
-     * Crée un StorageManager factice en cas d'échec total
-     */
     private StorageManager createDummyStorage() {
         try {
             return new StorageManager();
@@ -89,31 +83,28 @@ public final class SharedDataManager {
         try {
             isReconstructing = true;
             
-            // 1️⃣ CONFIGURATION (TOUJOURS EN PREMIER)
+            // 1️⃣ CONFIGURATION
             System.out.println("📋 1. Configuration...");
             try {
                 configuration = storage.loadConfiguration();
                 if (configuration != null) {
-                    System.out.println("  ✅ Configuration chargée depuis fichier");
+                    System.out.println("  ✅ Configuration chargée");
                     System.out.println("     - Seuil blocage: " + configuration.getBlockThreshold());
                     System.out.println("     - Seuil alerte: " + configuration.getAlertThreshold());
-                    System.out.println("     - Mots suspects: " + configuration.getSuspiciousWords().size());
-                    System.out.println("     - IPs blacklistées: " + configuration.getBlacklistedIPs().size());
-                    System.out.println("     - Ports surveillés: " + configuration.getMonitoredPorts().size());
                 } else {
                     configuration = new FirewallConfig();
-                    System.out.println("  ℹ️  Configuration par défaut créée");
+                    System.out.println("  ℹ️  Configuration par défaut");
                 }
             } catch (DatabaseException e) {
                 configuration = new FirewallConfig();
-                System.out.println("  ⚠️  Utilisation configuration par défaut");
+                System.out.println("  ⚠️  Configuration par défaut");
             }
             
             // 2️⃣ BLOCKCHAIN (RECONSTRUCTION DEPUIS CSV)
             System.out.println("\n🔗 2. Blockchain...");
             reconstructBlockchainFromCSV(storage);
             
-            // 3️⃣ STATISTIQUES (DÉJÀ PEUPLÉES VIA RECONSTRUCTION)
+            // 3️⃣ STATISTIQUES
             System.out.println("\n📊 3. Statistiques finales...");
             System.out.println("  ✅ Total paquets: " + statistics.getTotalPackets());
             System.out.println("  ✅ Acceptés: " + statistics.getAcceptedPackets());
@@ -130,66 +121,54 @@ public final class SharedDataManager {
     }
     
     /**
-     * 🔥 RECONSTRUCTION BLOCKCHAIN DEPUIS CSV - VERSION CORRIGÉE
+     * 🔥 RECONSTRUCTION BLOCKCHAIN - VERSION CORRIGÉE avec BlockData
      */
     private void reconstructBlockchainFromCSV(StorageManager storage) {
         try {
-            List<String> lines = storage.loadBlockHistory();
+            List<StorageManager.BlockData> blocks = storage.loadBlockHistory();
             
-            if (lines.isEmpty()) {
+            if (blocks.isEmpty()) {
                 System.out.println("  ℹ️  Blockchain vide (genesis uniquement)");
                 return;
             }
             
-            System.out.println("  📂 " + lines.size() + " lignes à traiter");
+            System.out.println("  📂 " + blocks.size() + " blocs à reconstruire");
             
             int reconstructed = 0;
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS");
             
-            for (String line : lines) {
-                if (line.trim().isEmpty() || line.startsWith("Index,")) {
+            for (StorageManager.BlockData blockData : blocks) {
+                
+                // Skip Genesis (déjà créé)
+                if (blockData.index == 0 && "0.0.0.0".equals(blockData.srcIP)) {
+                    System.out.println("  ⏭️  Genesis bloc skippé");
                     continue;
                 }
                 
                 try {
-                    String[] parts = line.split(",");
-                    
-                    if (parts.length < 11) {
-                        System.err.println("  ⚠️  Ligne invalide: " + parts.length + " colonnes");
-                        continue;
-                    }
-                    
-                    int index = Integer.parseInt(parts[0].trim());
-                    String srcIP = parts[1].trim();
-                    
-                    // Skip Genesis (déjà créé)
-                    if (index == 0 && "0.0.0.0".equals(srcIP)) {
-                        System.out.println("  ⏭️  Genesis bloc skippé");
-                        continue;
-                    }
-                    
-                    // Extraire toutes les données
-                    String destIP = parts[2].trim();
-                    int srcPort = Integer.parseInt(parts[3].trim());
-                    int destPort = Integer.parseInt(parts[4].trim());
-                    String protocol = parts[5].trim();
-                    int size = Integer.parseInt(parts[6].trim());
-                    long blockTimestamp = Long.parseLong(parts[7].trim());
-                    
+                    // Parser le timestamp du paquet
                     LocalDateTime packetTimestamp;
                     try {
-                        packetTimestamp = LocalDateTime.parse(parts[8].trim(), formatter);
+                        packetTimestamp = LocalDateTime.parse(blockData.packetTimestamp, formatter);
                     } catch (Exception e) {
-                        packetTimestamp = LocalDateTime.now();
+                        // Fallback avec format alternatif
+                        try {
+                            DateTimeFormatter alternativeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS");
+                            packetTimestamp = LocalDateTime.parse(blockData.packetTimestamp, alternativeFormatter);
+                        } catch (Exception e2) {
+                            packetTimestamp = LocalDateTime.now();
+                            System.out.println("  ⚠️  Timestamp invalide, utilisation de l'heure actuelle");
+                        }
                     }
-                    
-                    String previousHash = parts[9].trim();
-                    String hash = parts[10].trim();
                     
                     // Créer un paquet pour la décision
                     Packet packet = new PaquetSimple(
-                        srcIP, destIP, srcPort, destPort,
-                        protocol, "Restored from history", 
+                        blockData.srcIP,
+                        blockData.destIP,
+                        blockData.srcPort,
+                        blockData.destPort,
+                        blockData.protocol,
+                        "Restored from history",
                         packetTimestamp
                     );
                     
@@ -204,13 +183,18 @@ public final class SharedDataManager {
                     
                     // 🔥 CRÉER LE BLOC AVEC LE HASH ORIGINAL
                     Block restoredBlock = new Block(
-                        index,
+                        blockData.index,
                         List.of(decision),
-                        previousHash,
-                        blockTimestamp,
-                        hash,
-                        srcIP, destIP, srcPort, destPort,
-                        protocol, "Restored", size,
+                        blockData.previousHash,
+                        blockData.timestamp,
+                        blockData.hash,
+                        blockData.srcIP,
+                        blockData.destIP,
+                        blockData.srcPort,
+                        blockData.destPort,
+                        blockData.protocol,
+                        "Restored",
+                        blockData.size,
                         packetTimestamp,
                         true  // fromCSV flag
                     );
@@ -224,12 +208,13 @@ public final class SharedDataManager {
                     reconstructed++;
                     
                     if (reconstructed <= 3) {
-                        System.out.println("  ✓ Bloc #" + index + " : " + 
-                                         srcIP + " -> " + destIP + " (" + protocol + ")");
+                        System.out.println("  ✓ Bloc #" + blockData.index + " : " + 
+                                         blockData.srcIP + " -> " + blockData.destIP + 
+                                         " (" + blockData.protocol + ")");
                     }
                     
                 } catch (Exception e) {
-                    System.err.println("  ⚠️  Erreur ligne: " + e.getMessage());
+                    System.err.println("  ⚠️  Erreur reconstruction bloc #" + blockData.index + ": " + e.getMessage());
                 }
             }
             

@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 /**
- * Gestionnaire centralisé pour les 3 fichiers de stockage - VERSION CORRIGÉE
+ * 🔥 VERSION CORRIGÉE - Parsing CSV robuste avec gestion des virgules
  */
 public final class StorageManager {
     
@@ -40,9 +40,6 @@ public final class StorageManager {
         }
     }
     
-    /**
-     * 🔥 CORRECTION : Initialise TOUS les fichiers s'ils n'existent pas
-     */
     private void initializeFiles() throws DatabaseException {
         // Initialiser historique
         Path historyPath = dataDirectory.resolve(HISTORY_FILE);
@@ -60,7 +57,7 @@ public final class StorageManager {
             }
         }
         
-        // 🔥 NOUVEAU : Initialiser configuration si elle n'existe pas
+        // Initialiser configuration
         Path configPath = dataDirectory.resolve(CONFIG_FILE);
         if (!Files.exists(configPath)) {
             try {
@@ -73,8 +70,38 @@ public final class StorageManager {
         }
     }
 
-    // ========== GESTION HISTORIQUE BLOCS ==========
+    // ========== GESTION HISTORIQUE BLOCS - 🔥 PARSING CORRIGÉ ==========
 
+    /**
+     * 🔥 NOUVEAU : Parse une ligne CSV en gérant les virgules dans les timestamps
+     */
+    private String[] parseCSVLine(String line) {
+        List<String> result = new ArrayList<>();
+        StringBuilder current = new StringBuilder();
+        boolean inQuotes = false;
+        
+        for (int i = 0; i < line.length(); i++) {
+            char c = line.charAt(i);
+            
+            if (c == '"') {
+                inQuotes = !inQuotes;
+            } else if (c == ',' && !inQuotes) {
+                result.add(current.toString().trim());
+                current.setLength(0);
+            } else {
+                current.append(c);
+            }
+        }
+        
+        // Ajouter le dernier champ
+        result.add(current.toString().trim());
+        
+        return result.toArray(new String[0]);
+    }
+
+    /**
+     * 🔥 CORRIGÉ : Sauvegarde avec guillemets autour des timestamps
+     */
     public void saveBlockToHistory(Block block) throws DatabaseException {
         Path historyPath = dataDirectory.resolve(HISTORY_FILE);
         
@@ -84,7 +111,22 @@ public final class StorageManager {
                     StandardCharsets.UTF_8
                 ))) {
             
-            writer.write(block.toCSV());
+            // Format avec guillemets autour du timestamp
+            String csvLine = String.format("%d,%s,%s,%d,%d,%s,%d,%d,\"%s\",%s,%s",
+                block.index(),
+                block.srcIP(),
+                block.destIP(),
+                block.srcPort(),
+                block.destPort(),
+                block.protocol(),
+                block.size(),
+                block.timestamp(),
+                block.packetTimestamp().toString(),  // 🔥 Guillemets pour le timestamp
+                block.previousHash(),
+                block.hash()
+            );
+            
+            writer.write(csvLine);
             writer.newLine();
             
             System.out.println("✓ Bloc #" + block.index() + " sauvegardé dans l'historique");
@@ -94,7 +136,10 @@ public final class StorageManager {
         }
     }
 
-    public List<String> loadBlockHistory() throws DatabaseException {
+    /**
+     * 🔥 CORRIGÉ : Retourne des objets structurés au lieu de lignes brutes
+     */
+    public List<BlockData> loadBlockHistory() throws DatabaseException {
         Path historyPath = dataDirectory.resolve(HISTORY_FILE);
         
         if (!Files.exists(historyPath)) {
@@ -102,29 +147,61 @@ public final class StorageManager {
             return new ArrayList<>();
         }
         
-        try (Stream<String> lines = Files.lines(historyPath, StandardCharsets.UTF_8)) {
-            return lines.skip(1)
-                       .filter(line -> !line.trim().isEmpty())
-                       .toList();
+        List<BlockData> blocks = new ArrayList<>();
+        
+        try (BufferedReader reader = Files.newBufferedReader(historyPath, StandardCharsets.UTF_8)) {
+            String line;
+            boolean isHeader = true;
+            
+            while ((line = reader.readLine()) != null) {
+                if (isHeader) {
+                    isHeader = false;
+                    continue;
+                }
+                
+                if (line.trim().isEmpty()) {
+                    continue;
+                }
+                
+                try {
+                    String[] parts = parseCSVLine(line);  // 🔥 Parsing robuste
+                    
+                    if (parts.length < 11) {
+                        System.err.println("⚠️ Ligne invalide (colonnes: " + parts.length + "): " + line);
+                        continue;
+                    }
+                    
+                    BlockData blockData = new BlockData(
+                        Integer.parseInt(parts[0]),      // index
+                        parts[1],                         // srcIP
+                        parts[2],                         // destIP
+                        Integer.parseInt(parts[3]),      // srcPort
+                        Integer.parseInt(parts[4]),      // destPort
+                        parts[5],                         // protocol
+                        Integer.parseInt(parts[6]),      // size
+                        Long.parseLong(parts[7]),        // timestamp
+                        parts[8],                         // packetTimestamp
+                        parts[9],                         // previousHash
+                        parts[10]                         // hash
+                    );
+                    
+                    blocks.add(blockData);
+                    
+                } catch (Exception e) {
+                    System.err.println("⚠️ Erreur parsing ligne: " + e.getMessage());
+                    System.err.println("   Ligne: " + line);
+                }
+            }
+            
         } catch (IOException e) {
             throw new DatabaseException("Erreur lors du chargement de l'historique", e);
         }
+        
+        return blocks;
     }
 
     public long countBlocks() throws DatabaseException {
-        Path historyPath = dataDirectory.resolve(HISTORY_FILE);
-        
-        if (!Files.exists(historyPath)) {
-            return 0;
-        }
-        
-        try (Stream<String> lines = Files.lines(historyPath, StandardCharsets.UTF_8)) {
-            return lines.skip(1)
-                       .filter(line -> !line.trim().isEmpty())
-                       .count();
-        } catch (IOException e) {
-            throw new DatabaseException("Erreur lors du comptage des blocs", e);
-        }
+        return loadBlockHistory().size();
     }
 
     public void clearHistory() throws DatabaseException {
@@ -143,6 +220,41 @@ public final class StorageManager {
             
         } catch (IOException e) {
             throw new DatabaseException("Erreur lors de l'effacement de l'historique", e);
+        }
+    }
+
+    // ========== CLASSE INTERNE POUR DONNÉES DE BLOC ==========
+    
+    /**
+     * 🔥 NOUVEAU : Objet structuré pour les données de bloc
+     */
+    public static class BlockData {
+        public final int index;
+        public final String srcIP;
+        public final String destIP;
+        public final int srcPort;
+        public final int destPort;
+        public final String protocol;
+        public final int size;
+        public final long timestamp;
+        public final String packetTimestamp;
+        public final String previousHash;
+        public final String hash;
+        
+        public BlockData(int index, String srcIP, String destIP, int srcPort, 
+                        int destPort, String protocol, int size, long timestamp,
+                        String packetTimestamp, String previousHash, String hash) {
+            this.index = index;
+            this.srcIP = srcIP;
+            this.destIP = destIP;
+            this.srcPort = srcPort;
+            this.destPort = destPort;
+            this.protocol = protocol;
+            this.size = size;
+            this.timestamp = timestamp;
+            this.packetTimestamp = packetTimestamp;
+            this.previousHash = previousHash;
+            this.hash = hash;
         }
     }
 
@@ -228,9 +340,6 @@ public final class StorageManager {
 
     // ========== GESTION CONFIGURATION ==========
 
-    /**
-     * 🔥 CORRECTION : Sauvegarde complète avec TOUTES les propriétés
-     */
     public void saveConfiguration(FirewallConfig config) throws DatabaseException {
         Path configPath = dataDirectory.resolve(CONFIG_FILE);
         
@@ -264,25 +373,18 @@ public final class StorageManager {
                     .reduce((a, b) -> a + "," + b)
                     .orElse("") + "\n");
             
-            System.out.println("✓ Configuration sauvegardée dans " + configPath);
-            System.out.println("  - Seuil blocage: " + config.getBlockThreshold());
-            System.out.println("  - Seuil alerte: " + config.getAlertThreshold());
-            System.out.println("  - Min size: " + config.getMinPacketSize());
-            System.out.println("  - Max size: " + config.getMaxPacketSize());
+            System.out.println("✓ Configuration sauvegardée");
             
         } catch (IOException e) {
             throw new DatabaseException("Erreur lors de la sauvegarde de la configuration", e);
         }
     }
 
-    /**
-     * 🔥 CORRECTION : Chargement complet avec gestion d'erreurs
-     */
     public FirewallConfig loadConfiguration() throws DatabaseException {
         Path configPath = dataDirectory.resolve(CONFIG_FILE);
         
         if (!Files.exists(configPath)) {
-            System.out.println("⚠ Aucune configuration trouvée, utilisation des valeurs par défaut");
+            System.out.println("⚠ Aucune configuration trouvée");
             return new FirewallConfig();
         }
         
@@ -309,61 +411,47 @@ public final class StorageManager {
                     
                     try {
                         switch (key) {
-                            case "blockThreshold" -> {
-                                int val = Integer.parseInt(value);
-                                config.setBlockThreshold(val);
-                                System.out.println("  ✓ Chargé blockThreshold: " + val);
-                            }
-                            case "alertThreshold" -> {
-                                int val = Integer.parseInt(value);
-                                config.setAlertThreshold(val);
-                                System.out.println("  ✓ Chargé alertThreshold: " + val);
-                            }
-                            case "minPacketSize" -> {
-                                int val = Integer.parseInt(value);
-                                config.setMinPacketSize(val);
-                                System.out.println("  ✓ Chargé minPacketSize: " + val);
-                            }
-                            case "maxPacketSize" -> {
-                                int val = Integer.parseInt(value);
-                                config.setMaxPacketSize(val);
-                                System.out.println("  ✓ Chargé maxPacketSize: " + val);
-                            }
-                            case "suspiciousWords" -> {
+                            case "blockThreshold":
+                                config.setBlockThreshold(Integer.parseInt(value));
+                                break;
+                            case "alertThreshold":
+                                config.setAlertThreshold(Integer.parseInt(value));
+                                break;
+                            case "minPacketSize":
+                                config.setMinPacketSize(Integer.parseInt(value));
+                                break;
+                            case "maxPacketSize":
+                                config.setMaxPacketSize(Integer.parseInt(value));
+                                break;
+                            case "suspiciousWords":
                                 if (!value.isEmpty()) {
-                                    String[] words = value.split(",");
-                                    for (String word : words) {
+                                    for (String word : value.split(",")) {
                                         config.addSuspiciousWord(word.trim());
                                     }
-                                    System.out.println("  ✓ Chargé " + words.length + " mots suspects");
                                 }
-                            }
-                            case "blacklistedIPs" -> {
+                                break;
+                            case "blacklistedIPs":
                                 if (!value.isEmpty()) {
-                                    String[] ips = value.split(",");
-                                    for (String ip : ips) {
+                                    for (String ip : value.split(",")) {
                                         config.addBlacklistedIP(ip.trim());
                                     }
-                                    System.out.println("  ✓ Chargé " + ips.length + " IPs blacklistées");
                                 }
-                            }
-                            case "monitoredPorts" -> {
+                                break;
+                            case "monitoredPorts":
                                 if (!value.isEmpty()) {
-                                    String[] ports = value.split(",");
-                                    for (String port : ports) {
+                                    for (String port : value.split(",")) {
                                         config.addMonitoredPort(Integer.parseInt(port.trim()));
                                     }
-                                    System.out.println("  ✓ Chargé " + ports.length + " ports surveillés");
                                 }
-                            }
+                                break;
                         }
                     } catch (NumberFormatException e) {
-                        System.err.println("⚠ Valeur invalide pour " + key + ": " + value);
+                        System.err.println("⚠ Valeur invalide pour " + key);
                     }
                 }
             }
             
-            System.out.println("✓ Configuration chargée depuis " + configPath);
+            System.out.println("✓ Configuration chargée");
             return config;
             
         } catch (IOException e) {
@@ -387,15 +475,6 @@ public final class StorageManager {
 
     public boolean configExists() {
         return Files.exists(dataDirectory.resolve(CONFIG_FILE));
-    }
-
-    public long getHistoryFileSize() {
-        try {
-            Path path = dataDirectory.resolve(HISTORY_FILE);
-            return Files.exists(path) ? Files.size(path) : 0;
-        } catch (IOException e) {
-            return 0;
-        }
     }
 
     public void clearAll() throws DatabaseException {
