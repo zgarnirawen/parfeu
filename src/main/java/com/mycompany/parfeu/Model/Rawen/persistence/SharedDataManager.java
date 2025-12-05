@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 🔥 VERSION FINALE CORRIGÉE - Restauration avec nouveau parsing CSV
+ * 🔥 VERSION FINALE CORRIGÉE - Parsing CSV robuste avec détection des problèmes
  */
 public final class SharedDataManager {
     
@@ -121,10 +121,11 @@ public final class SharedDataManager {
     }
     
     /**
-     * 🔥 RECONSTRUCTION BLOCKCHAIN - VERSION CORRIGÉE avec BlockData
+     * 🔥 RECONSTRUCTION BLOCKCHAIN - VERSION ULTRA-ROBUSTE
      */
     private void reconstructBlockchainFromCSV(StorageManager storage) {
         try {
+            // 🔥 UTILISER LA NOUVELLE MÉTHODE DE PARSING ROBUSTE
             List<StorageManager.BlockData> blocks = storage.loadBlockHistory();
             
             if (blocks.isEmpty()) {
@@ -132,34 +133,24 @@ public final class SharedDataManager {
                 return;
             }
             
-            System.out.println("  📂 " + blocks.size() + " blocs à reconstruire");
+            System.out.println("  📂 " + blocks.size() + " blocs trouvés dans le CSV");
             
             int reconstructed = 0;
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS");
+            int skipped = 0;
+            int errors = 0;
             
             for (StorageManager.BlockData blockData : blocks) {
                 
-                // Skip Genesis (déjà créé)
+                // Skip Genesis (déjà créé par BlockChain constructor)
                 if (blockData.index == 0 && "0.0.0.0".equals(blockData.srcIP)) {
-                    System.out.println("  ⏭️  Genesis bloc skippé");
+                    System.out.println("  ⏭️  Genesis bloc skippé (index 0)");
+                    skipped++;
                     continue;
                 }
                 
                 try {
-                    // Parser le timestamp du paquet
-                    LocalDateTime packetTimestamp;
-                    try {
-                        packetTimestamp = LocalDateTime.parse(blockData.packetTimestamp, formatter);
-                    } catch (Exception e) {
-                        // Fallback avec format alternatif
-                        try {
-                            DateTimeFormatter alternativeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS");
-                            packetTimestamp = LocalDateTime.parse(blockData.packetTimestamp, alternativeFormatter);
-                        } catch (Exception e2) {
-                            packetTimestamp = LocalDateTime.now();
-                            System.out.println("  ⚠️  Timestamp invalide, utilisation de l'heure actuelle");
-                        }
-                    }
+                    // 🔥 PARSING DU TIMESTAMP AVEC PLUSIEURS FORMATS
+                    LocalDateTime packetTimestamp = parseTimestamp(blockData.packetTimestamp);
                     
                     // Créer un paquet pour la décision
                     Packet packet = new PaquetSimple(
@@ -168,7 +159,7 @@ public final class SharedDataManager {
                         blockData.srcPort,
                         blockData.destPort,
                         blockData.protocol,
-                        "Restored from history",
+                        "Restored from blockchain history",
                         packetTimestamp
                     );
                     
@@ -178,16 +169,16 @@ public final class SharedDataManager {
                         new ArrayList<>(),
                         0,
                         Actions.LOG,
-                        "Restored from history"
+                        "Restored from blockchain"
                     );
                     
-                    // 🔥 CRÉER LE BLOC AVEC LE HASH ORIGINAL
+                    // 🔥 CRÉER LE BLOC AVEC LE HASH ORIGINAL (fromCSV = true)
                     Block restoredBlock = new Block(
                         blockData.index,
                         List.of(decision),
                         blockData.previousHash,
                         blockData.timestamp,
-                        blockData.hash,
+                        blockData.hash,          // 🔥 HASH ORIGINAL
                         blockData.srcIP,
                         blockData.destIP,
                         blockData.srcPort,
@@ -196,17 +187,18 @@ public final class SharedDataManager {
                         "Restored",
                         blockData.size,
                         packetTimestamp,
-                        true  // fromCSV flag
+                        true  // 🔥 fromCSV = true (ne pas recalculer)
                     );
                     
-                    // Ajouter directement à la blockchain
-                    blockchain.getChain().add(restoredBlock);
+                    // 🔥 UTILISER LA NOUVELLE MÉTHODE restoreBlock()
+                    blockchain.restoreBlock(restoredBlock);
                     
                     // Enregistrer dans les stats
                     statistics.recordDecision(decision);
                     
                     reconstructed++;
                     
+                    // Afficher les 3 premiers blocs
                     if (reconstructed <= 3) {
                         System.out.println("  ✓ Bloc #" + blockData.index + " : " + 
                                          blockData.srcIP + " -> " + blockData.destIP + 
@@ -214,16 +206,60 @@ public final class SharedDataManager {
                     }
                     
                 } catch (Exception e) {
-                    System.err.println("  ⚠️  Erreur reconstruction bloc #" + blockData.index + ": " + e.getMessage());
+                    errors++;
+                    System.err.println("  ⚠️  Erreur bloc #" + blockData.index + ": " + e.getMessage());
                 }
             }
             
-            System.out.println("  ✅ " + reconstructed + " blocs reconstruits");
-            System.out.println("  📊 Blockchain totale: " + blockchain.getSize() + " blocs");
+            // 🔥 RAPPORT DÉTAILLÉ
+            System.out.println("\n  📊 Rapport de reconstruction:");
+            System.out.println("     - Blocs dans CSV: " + blocks.size());
+            System.out.println("     - Blocs skippés (genesis): " + skipped);
+            System.out.println("     - Blocs reconstruits: " + reconstructed);
+            System.out.println("     - Erreurs: " + errors);
+            System.out.println("     - Blockchain.getSize(): " + blockchain.getSize() + " blocs");
+            System.out.println("     - Blockchain.getChain().size(): " + blockchain.getChain().size() + " blocs");
+            
+            if (reconstructed > 0) {
+                System.out.println("  ✅ Blockchain restaurée avec succès!");
+            } else {
+                System.out.println("  ⚠️  Aucun bloc restauré (vérifiez le format CSV)");
+            }
             
         } catch (DatabaseException e) {
-            System.out.println("  ℹ️  Pas d'historique trouvé: " + e.getMessage());
+            System.out.println("  ⚠️  Erreur lecture CSV: " + e.getMessage());
+            e.printStackTrace();
         }
+    }
+    
+    /**
+     * 🔥 PARSING ROBUSTE DU TIMESTAMP avec plusieurs formats
+     */
+    private LocalDateTime parseTimestamp(String timestampStr) {
+        if (timestampStr == null || timestampStr.trim().isEmpty()) {
+            return LocalDateTime.now();
+        }
+        
+        // Liste des formats à essayer (du plus précis au moins précis)
+        DateTimeFormatter[] formatters = {
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS"),
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS"),
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"),
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"),
+            DateTimeFormatter.ISO_LOCAL_DATE_TIME
+        };
+        
+        for (DateTimeFormatter formatter : formatters) {
+            try {
+                return LocalDateTime.parse(timestampStr, formatter);
+            } catch (Exception e) {
+                // Essayer le format suivant
+            }
+        }
+        
+        // Fallback : timestamp actuel
+        System.err.println("  ⚠️  Impossible de parser timestamp: " + timestampStr);
+        return LocalDateTime.now();
     }
     
     /**
