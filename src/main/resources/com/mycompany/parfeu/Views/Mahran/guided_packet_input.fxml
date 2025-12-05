@@ -48,43 +48,72 @@
 
                         <GridPane hgap="20.0" vgap="15.0">
 
-                            <!-- LABELS EN TEXTE NOIR SUR FOND CLAIR -->
+                            <!-- Source IP -->
                             <Label text="Source IP:" GridPane.columnIndex="0" GridPane.rowIndex="0"
                                    style="-fx-text-fill: #000000;">
                                 <font><Font name="System Bold" size="14.0" /></font>
                             </Label>
-                            <TextField fx:id="sourceIpField" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                            <TextField fx:id="srcIPField" promptText="192.168.1.100" 
+                                      GridPane.columnIndex="1" GridPane.rowIndex="0"
+                                      style="-fx-text-fill: #000000;"/>
 
+                            <!-- Destination IP -->
                             <Label text="Destination IP:" GridPane.columnIndex="0" GridPane.rowIndex="1"
                                    style="-fx-text-fill: #000000;">
                                 <font><Font name="System Bold" size="14.0" /></font>
                             </Label>
-                            <TextField fx:id="destIpField" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                            <TextField fx:id="destIPField" promptText="192.168.1.1"
+                                      GridPane.columnIndex="1" GridPane.rowIndex="1"
+                                      style="-fx-text-fill: #000000;"/>
 
+                            <!-- Source Port -->
                             <Label text="Source Port:" GridPane.columnIndex="2" GridPane.rowIndex="0"
                                    style="-fx-text-fill: #000000;">
                                 <font><Font name="System Bold" size="14.0" /></font>
                             </Label>
-                            <TextField fx:id="sourcePortField" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+                            <Spinner fx:id="srcPortSpinner" editable="true" 
+                                    GridPane.columnIndex="3" GridPane.rowIndex="0"/>
 
+                            <!-- Destination Port -->
                             <Label text="Destination Port:" GridPane.columnIndex="2" GridPane.rowIndex="1"
                                    style="-fx-text-fill: #000000;">
                                 <font><Font name="System Bold" size="14.0" /></font>
                             </Label>
-                            <TextField fx:id="destPortField" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+                            <Spinner fx:id="destPortSpinner" editable="true"
+                                    GridPane.columnIndex="3" GridPane.rowIndex="1"/>
 
+                            <!-- Protocol -->
                             <Label text="Protocol:" GridPane.columnIndex="0" GridPane.rowIndex="2"
                                    style="-fx-text-fill: #000000;">
                                 <font><Font name="System Bold" size="14.0" /></font>
                             </Label>
-                            <ComboBox fx:id="protocolCombo" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                            <ComboBox fx:id="protocolCombo" prefWidth="200"
+                                     GridPane.columnIndex="1" GridPane.rowIndex="2"/>
 
-                            <Label text="Attack Type:" GridPane.columnIndex="0" GridPane.rowIndex="3"
+                            <!-- Payload -->
+                            <Label text="Payload:" GridPane.columnIndex="0" GridPane.rowIndex="3"
+                                   style="-fx-text-fill: #000000;">
+                                <font><Font name="System Bold" size="14.0" /></font>
+                            </Label>
+                            <TextArea fx:id="payloadArea" prefHeight="80" prefRowCount="3"
+                                     promptText="Enter packet payload here..."
+                                     GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.columnSpan="3"
+                                     style="-fx-text-fill: #000000;"/>
+
+                            <!-- Malicious Checkbox -->
+                            <CheckBox fx:id="maliciousCheckbox" text="Malicious Packet"
+                                     GridPane.columnIndex="0" GridPane.rowIndex="4"
+                                     style="-fx-text-fill: #000000;">
+                                <font><Font name="System Bold" size="14.0" /></font>
+                            </CheckBox>
+
+                            <!-- Attack Type -->
+                            <Label text="Attack Type:" GridPane.columnIndex="2" GridPane.rowIndex="4"
                                    style="-fx-text-fill: #000000;">
                                 <font><Font name="System Bold" size="14.0" /></font>
                             </Label>
                             <ComboBox fx:id="attackTypeCombo" prefWidth="200"
-                                      GridPane.columnIndex="1" GridPane.rowIndex="3"
+                                      GridPane.columnIndex="3" GridPane.rowIndex="4"
                                       style="-fx-background-radius: 8;" />
 
                         </GridPane>
@@ -113,7 +142,8 @@
                         </Label>
 
                         <TextArea fx:id="packetDisplayArea" editable="false" prefHeight="180.0"
-                                 style="-fx-background-color: #E3F2FD; 
+                                 style="-fx-control-inner-background: #E3F2FD; 
+                                        -fx-text-fill: #000000;
                                         -fx-font-family: 'Courier New'; 
                                         -fx-font-size: 12; 
                                         -fx-background-radius: 8; 
@@ -141,7 +171,7 @@
                                -fx-font-size: 14;" />
 
                 <Button fx:id="initialFilterBtn" text="🔍 INITIAL FILTERING" prefWidth="220" prefHeight="45"
-                        style="-fx-background-color: linear-gradient(to right, #4ECDC4, #44A08D); 
+                        style="-fx-background-color: linear-gradient(to right, #1976D2, #FF6F00); 
                                -fx-text-fill: white; 
                                -fx-font-weight: bold; 
                                -fx-background-radius: 10; 

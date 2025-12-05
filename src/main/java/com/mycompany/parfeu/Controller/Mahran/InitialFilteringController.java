@@ -3,7 +3,6 @@ package com.mycompany.parfeu.Controller.Mahran;
 import com.mycompany.parfeu.App;
 import com.mycompany.parfeu.Model.Mahran.config.FirewallConfig;
 import com.mycompany.parfeu.Model.Mahran.generator.Packet;
-import com.mycompany.parfeu.Controller.Rawen.FinalDecisionController;
 import com.mycompany.parfeu.Model.Rawen.decision.DecisionResult;
 import com.mycompany.parfeu.Model.Rawen.decision.Actions;
 import com.mycompany.parfeu.Model.Rawen.persistence.SharedDataManager;
@@ -39,15 +38,24 @@ public class InitialFilteringController implements Initializable {
     private FirewallConfig config;
     private boolean passedFiltering;
     private SharedDataManager sharedData;
-    private String blockReason = null; // Raison du blocage
+    private String blockReason = null;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        System.out.println("\n🔍 ========== INITIAL FILTERING CONTROLLER INIT ==========");
+        
         sharedData = SharedDataManager.getInstance();
         config = sharedData.getConfiguration();
         passedFiltering = false;
+        
         setupButtons();
+        
         System.out.println("✓ InitialFilteringController initialized");
+        System.out.println("   Configuration chargée:");
+        System.out.println("   - IPs blacklistées: " + config.getBlacklistedIPs().size());
+        System.out.println("   - Ports surveillés: " + config.getMonitoredPorts().size());
+        System.out.println("   - Mots suspects: " + config.getSuspiciousWords().size());
+        System.out.println("================================================\n");
     }
 
     public void setPacket(Packet packet) {
@@ -82,9 +90,6 @@ public class InitialFilteringController implements Initializable {
         packetInfoArea.setText(sb.toString());
     }
 
-    /**
-     * 🔥 FILTRAGE STRICT avec blocage immédiat
-     */
     private void performFiltering() {
         if (currentPacket == null) return;
 
@@ -105,7 +110,7 @@ public class InitialFilteringController implements Initializable {
         
         if (srcBlacklisted || destBlacklisted) {
             ipValidationLabel.setText("❌ BLACKLISTED");
-            ipValidationLabel.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
+            ipValidationLabel.setStyle("-fx-background-color: #EF5350; -fx-text-fill: white; -fx-padding: 5 15; -fx-background-radius: 15; -fx-font-weight: bold;");
             details.append("   🚨 CRITICAL: IP address is BLACKLISTED!\n");
             if (srcBlacklisted) {
                 details.append("   Source IP: ").append(currentPacket.getSrcIP()).append(" ❌\n");
@@ -119,7 +124,7 @@ public class InitialFilteringController implements Initializable {
             allPassed = false;
         } else {
             ipValidationLabel.setText("✅ VALID");
-            ipValidationLabel.setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold;");
+            ipValidationLabel.setStyle("-fx-background-color: #66BB6A; -fx-text-fill: white; -fx-padding: 5 15; -fx-background-radius: 15; -fx-font-weight: bold;");
             details.append("   ✅ IP addresses are valid\n");
             details.append("   Source: ").append(currentPacket.getSrcIP()).append(" ✓\n");
             details.append("   Destination: ").append(currentPacket.getDestIP()).append(" ✓\n");
@@ -129,16 +134,12 @@ public class InitialFilteringController implements Initializable {
         details.append("\n2️⃣ PORT MONITORING\n");
         details.append("   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
         
-        boolean srcPortMonitored = config.getMonitoredPorts().contains(currentPacket.getSrcPort());
         boolean destPortMonitored = config.getMonitoredPorts().contains(currentPacket.getDestPort());
-        
-        // Ports < 1024 sont privilégiés
-        boolean srcPortPrivileged = currentPacket.getSrcPort() < 1024;
         boolean destPortPrivileged = currentPacket.getDestPort() < 1024;
         
         if ((destPortMonitored || destPortPrivileged) && allPassed) {
             portValidationLabel.setText("⚠️ SUSPICIOUS");
-            portValidationLabel.setStyle("-fx-text-fill: #f39c12; -fx-font-weight: bold;");
+            portValidationLabel.setStyle("-fx-background-color: #FFCA28; -fx-text-fill: #000000; -fx-padding: 5 15; -fx-background-radius: 15; -fx-font-weight: bold;");
             details.append("   ⚠️ Suspicious port activity detected\n");
             if (destPortMonitored) {
                 details.append("   Dest Port ").append(currentPacket.getDestPort())
@@ -149,10 +150,9 @@ public class InitialFilteringController implements Initializable {
                       .append(" is PRIVILEGED (< 1024)\n");
             }
             details.append("   → Requires deep analysis\n");
-            // On ne bloque pas encore, mais on note
         } else {
             portValidationLabel.setText("✅ VALID");
-            portValidationLabel.setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold;");
+            portValidationLabel.setStyle("-fx-background-color: #66BB6A; -fx-text-fill: white; -fx-padding: 5 15; -fx-background-radius: 15; -fx-font-weight: bold;");
             details.append("   ✅ Port numbers are valid\n");
             details.append("   Source Port: ").append(currentPacket.getSrcPort()).append(" ✓\n");
             details.append("   Dest Port: ").append(currentPacket.getDestPort()).append(" ✓\n");
@@ -174,12 +174,12 @@ public class InitialFilteringController implements Initializable {
         
         if (foundSuspiciousWord && allPassed) {
             protocolCheckLabel.setText("⚠️ SUSPICIOUS");
-            protocolCheckLabel.setStyle("-fx-text-fill: #e67e22; -fx-font-weight: bold;");
+            protocolCheckLabel.setStyle("-fx-background-color: #FF9800; -fx-text-fill: white; -fx-padding: 5 15; -fx-background-radius: 15; -fx-font-weight: bold;");
             details.append("   ⚠️ Suspicious patterns detected in payload\n");
             details.append("   → Packet flagged for deep analysis\n");
         } else {
             protocolCheckLabel.setText("✅ CLEAN");
-            protocolCheckLabel.setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold;");
+            protocolCheckLabel.setStyle("-fx-background-color: #66BB6A; -fx-text-fill: white; -fx-padding: 5 15; -fx-background-radius: 15; -fx-font-weight: bold;");
             details.append("   ✅ No suspicious patterns found\n");
         }
 
@@ -191,21 +191,19 @@ public class InitialFilteringController implements Initializable {
         passedFiltering = allPassed;
         
         if (!allPassed) {
-            // 🔥 BLOCAGE IMMÉDIAT
             overallStatusLabel.setText("❌ BLOCKED");
-            overallStatusLabel.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold; -fx-font-size: 18;");
+            overallStatusLabel.setStyle("-fx-text-fill: #EF5350; -fx-font-weight: bold;");
             details.append("\n❌ Packet BLOCKED by initial filtering\n");
             details.append("   Reason: ").append(blockReason).append("\n");
             details.append("   → Deep analysis SKIPPED\n");
             details.append("   → Packet will be DROPPED immediately\n");
             analyzeBtn.setDisable(true);
             
-            // 🔥 ENREGISTRER LA DÉCISION DE BLOCAGE IMMÉDIATEMENT
             blockPacketImmediately();
             
         } else {
             overallStatusLabel.setText("✅ PASSED");
-            overallStatusLabel.setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold; -fx-font-size: 18;");
+            overallStatusLabel.setStyle("-fx-text-fill: #66BB6A; -fx-font-weight: bold;");
             details.append("\n✅ Packet PASSED initial filtering\n");
             details.append("   → Ready for deep analysis\n");
             analyzeBtn.setDisable(false);
@@ -214,29 +212,23 @@ public class InitialFilteringController implements Initializable {
         filterDetailsArea.setText(details.toString());
     }
 
-    /**
-     * 🔥 BLOCAGE IMMÉDIAT avec enregistrement dans la blockchain
-     */
     private void blockPacketImmediately() {
         try {
             System.out.println("\n🚫 BLOCAGE IMMÉDIAT du paquet");
             System.out.println("   Raison: " + blockReason);
             
-            // Créer une décision de blocage
             DecisionResult decision = new DecisionResult(
                 currentPacket,
-                new ArrayList<>(), // Pas de signaux (blocage au niveau filtrage)
-                99, // Score max pour blocage immédiat
+                new ArrayList<>(),
+                99,
                 Actions.DROP,
                 blockReason
             );
             
-            // Enregistrer dans la blockchain ET les statistiques
             sharedData.addDecision(decision);
             
-            System.out.println("✓ Décision de blocage enregistrée dans la blockchain");
+            System.out.println("✓ Décision de blocage enregistrée");
             
-            // Afficher un message à l'utilisateur
             showBlockedAlert();
             
         } catch (Exception e) {
@@ -245,9 +237,6 @@ public class InitialFilteringController implements Initializable {
         }
     }
 
-    /**
-     * Alerte de blocage pour l'utilisateur
-     */
     private void showBlockedAlert() {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle("🚫 Packet Blocked");

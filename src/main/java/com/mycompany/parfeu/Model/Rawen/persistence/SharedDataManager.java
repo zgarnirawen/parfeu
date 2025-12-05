@@ -22,31 +22,54 @@ public final class SharedDataManager {
     
     private static SharedDataManager instance;
     private final StatisticsManager statistics;
-    private BlockChain blockchain;
     private final StorageManager storage;
+    private BlockChain blockchain;
     private FirewallConfig configuration;
     
     private boolean isReconstructing = false;
     
     private SharedDataManager() {
+        // 🔥 INITIALISATION IMMÉDIATE DES CHAMPS FINAL
+        this.statistics = new StatisticsManager();
+        
+        StorageManager tempStorage = null;
         try {
             System.out.println("\n╔══════════════════════════════════════════════════════════╗");
             System.out.println("║        INITIALISATION SHARED DATA MANAGER               ║");
             System.out.println("╚══════════════════════════════════════════════════════════╝\n");
             
-            this.storage = new StorageManager();
-            this.statistics = new StatisticsManager();
+            tempStorage = new StorageManager();
             this.blockchain = new BlockChain();
             
             // 🔥 CHARGEMENT IMMÉDIAT DE TOUTES LES DONNÉES
-            loadAllData();
+            loadAllData(tempStorage);
             
             System.out.println("✅ SharedDataManager prêt\n");
             printSummary();
             
         } catch (DatabaseException e) {
             System.err.println("⚠️  Erreur init: " + e.getMessage());
-            // Continuer avec les valeurs par défaut
+            e.printStackTrace();
+            // Créer un StorageManager par défaut si l'initialisation échoue
+            try {
+                tempStorage = new StorageManager();
+            } catch (DatabaseException ex) {
+                System.err.println("⚠️  Impossible de créer StorageManager: " + ex.getMessage());
+            }
+        } finally {
+            // Assigner le storage (jamais null grâce au try-catch)
+            this.storage = tempStorage != null ? tempStorage : createDummyStorage();
+        }
+    }
+    
+    /**
+     * Crée un StorageManager factice en cas d'échec total
+     */
+    private StorageManager createDummyStorage() {
+        try {
+            return new StorageManager();
+        } catch (DatabaseException e) {
+            throw new RuntimeException("Impossible d'initialiser le système de stockage", e);
         }
     }
     
@@ -60,7 +83,7 @@ public final class SharedDataManager {
     /**
      * 🔥 CHARGEMENT COMPLET - IMMÉDIAT AU DÉMARRAGE
      */
-    private void loadAllData() {
+    private void loadAllData(StorageManager storage) {
         System.out.println("🔄 Chargement des données persistantes...\n");
         
         try {
@@ -74,6 +97,9 @@ public final class SharedDataManager {
                     System.out.println("  ✅ Configuration chargée depuis fichier");
                     System.out.println("     - Seuil blocage: " + configuration.getBlockThreshold());
                     System.out.println("     - Seuil alerte: " + configuration.getAlertThreshold());
+                    System.out.println("     - Mots suspects: " + configuration.getSuspiciousWords().size());
+                    System.out.println("     - IPs blacklistées: " + configuration.getBlacklistedIPs().size());
+                    System.out.println("     - Ports surveillés: " + configuration.getMonitoredPorts().size());
                 } else {
                     configuration = new FirewallConfig();
                     System.out.println("  ℹ️  Configuration par défaut créée");
@@ -85,7 +111,7 @@ public final class SharedDataManager {
             
             // 2️⃣ BLOCKCHAIN (RECONSTRUCTION DEPUIS CSV)
             System.out.println("\n🔗 2. Blockchain...");
-            reconstructBlockchainFromCSV();
+            reconstructBlockchainFromCSV(storage);
             
             // 3️⃣ STATISTIQUES (DÉJÀ PEUPLÉES VIA RECONSTRUCTION)
             System.out.println("\n📊 3. Statistiques finales...");
@@ -104,9 +130,9 @@ public final class SharedDataManager {
     }
     
     /**
-     * 🔥 RECONSTRUCTION BLOCKCHAIN DEPUIS CSV
+     * 🔥 RECONSTRUCTION BLOCKCHAIN DEPUIS CSV - VERSION CORRIGÉE
      */
-    private void reconstructBlockchainFromCSV() {
+    private void reconstructBlockchainFromCSV(StorageManager storage) {
         try {
             List<String> lines = storage.loadBlockHistory();
             
@@ -115,7 +141,7 @@ public final class SharedDataManager {
                 return;
             }
             
-            System.out.println("  📂 " + lines.size() + " blocs à reconstruire");
+            System.out.println("  📂 " + lines.size() + " lignes à traiter");
             
             int reconstructed = 0;
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS");
@@ -129,16 +155,16 @@ public final class SharedDataManager {
                     String[] parts = line.split(",");
                     
                     if (parts.length < 11) {
-                        System.err.println("  ⚠️  Ligne invalide: " + parts.length + " parties");
+                        System.err.println("  ⚠️  Ligne invalide: " + parts.length + " colonnes");
                         continue;
                     }
                     
                     int index = Integer.parseInt(parts[0].trim());
                     String srcIP = parts[1].trim();
                     
-                    // Skip Genesis (déjà créé par le constructeur de BlockChain)
+                    // Skip Genesis (déjà créé)
                     if (index == 0 && "0.0.0.0".equals(srcIP)) {
-                        System.out.println("  ⏭️  Genesis skippé");
+                        System.out.println("  ⏭️  Genesis bloc skippé");
                         continue;
                     }
                     
@@ -163,11 +189,11 @@ public final class SharedDataManager {
                     // Créer un paquet pour la décision
                     Packet packet = new PaquetSimple(
                         srcIP, destIP, srcPort, destPort,
-                        protocol, "Restored from CSV", 
+                        protocol, "Restored from history", 
                         packetTimestamp
                     );
                     
-                    // Déterminer l'action depuis le protocol (si encodé) ou utiliser LOG
+                    // Créer une décision fictive pour les stats
                     DecisionResult decision = new DecisionResult(
                         packet,
                         new ArrayList<>(),
@@ -182,7 +208,7 @@ public final class SharedDataManager {
                         List.of(decision),
                         previousHash,
                         blockTimestamp,
-                        hash,  // Hash original
+                        hash,
                         srcIP, destIP, srcPort, destPort,
                         protocol, "Restored", size,
                         packetTimestamp,
@@ -211,7 +237,7 @@ public final class SharedDataManager {
             System.out.println("  📊 Blockchain totale: " + blockchain.getSize() + " blocs");
             
         } catch (DatabaseException e) {
-            System.out.println("  ℹ️  Pas d'historique trouvé");
+            System.out.println("  ℹ️  Pas d'historique trouvé: " + e.getMessage());
         }
     }
     
@@ -238,6 +264,7 @@ public final class SharedDataManager {
             
         } catch (Exception e) {
             System.err.println("✗ Erreur: " + e.getMessage());
+            e.printStackTrace();
         }
     }
     
@@ -273,6 +300,7 @@ public final class SharedDataManager {
             System.out.println("✓ Configuration sauvegardée");
         } catch (DatabaseException e) {
             System.err.println("✗ Erreur config: " + e.getMessage());
+            e.printStackTrace();
         }
     }
     
@@ -301,6 +329,7 @@ public final class SharedDataManager {
             System.out.println("✓ Reset complet");
         } catch (DatabaseException e) {
             System.err.println("✗ Erreur reset: " + e.getMessage());
+            e.printStackTrace();
         }
     }
     

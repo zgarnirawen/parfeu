@@ -7,12 +7,12 @@
 
 <AnchorPane prefHeight="800" prefWidth="900" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.mycompany.parfeu.Controller.Mahran.InitialFilteringController"
-            style="-fx-background-color: linear-gradient(to bottom, #0f2027, #203a43, #2c5364);">
+            style="-fx-background-color: linear-gradient(to bottom, #0D47A1, #1565C0, #1976D2);">
 
     <BorderPane prefHeight="800.0" prefWidth="900.0">
         <!-- HEADER -->
         <top>
-            <VBox alignment="CENTER" prefHeight="100.0" style="-fx-background-color: linear-gradient(to right, #4ECDC4, #44A08D);">
+            <VBox alignment="CENTER" prefHeight="100.0" style="-fx-background-color: linear-gradient(to right, #1976D2, #FF6F00);">
                 <padding>
                     <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
                 </padding>
@@ -21,7 +21,7 @@
                         <Font name="System Bold" size="32.0" />
                     </font>
                 </Label>
-                <Label text="Basic packet validation and filtering" textFill="#D4F1F4">
+                <Label text="Basic packet validation and filtering" textFill="#FFE0B2">
                     <font>
                         <Font name="System Bold Italic" size="16.0" />
                     </font>
@@ -38,73 +38,101 @@
                     </padding>
 
                     <!-- PACKET INFO -->
-                    <VBox spacing="15.0" style="-fx-background-color: rgba(255,255,255,0.95); -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 15, 0, 0, 5);">
+                    <VBox spacing="15.0" style="-fx-background-color: rgba(255,255,255,0.98); -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 15, 0, 0, 5);">
                         <padding>
                             <Insets bottom="20" left="20" right="20" top="20" />
                         </padding>
-                        <Label text="📦 Packet Information" textFill="#4ECDC4">
+                        <Label text="📦 Packet Information" textFill="#1976D2">
                             <font>
                                 <Font name="System Bold" size="20.0" />
                             </font>
                         </Label>
                         <TextArea fx:id="packetInfoArea" editable="false" prefHeight="150.0"
-                                 style="-fx-background-color: #F5F5F5; -fx-font-family: 'Courier New'; -fx-font-size: 12; -fx-background-radius: 8;" />
+                                 style="-fx-control-inner-background: #F5F5F5; -fx-text-fill: #000000; -fx-font-family: 'Courier New'; -fx-font-size: 12; -fx-background-radius: 8; -fx-border-color: #1976D2; -fx-border-width: 2; -fx-border-radius: 8;" />
                     </VBox>
 
                     <!-- FILTERING RESULTS -->
-                    <VBox spacing="15.0" style="-fx-background-color: rgba(255,255,255,0.95); -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 15, 0, 0, 5);">
+                    <VBox spacing="15.0" style="-fx-background-color: rgba(255,255,255,0.98); -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 15, 0, 0, 5);">
                         <padding>
                             <Insets bottom="20" left="20" right="20" top="20" />
                         </padding>
-                        <Label text="✅ Filtering Results" textFill="#44A08D">
+                        <Label text="✅ Filtering Results" textFill="#FF6F00">
                             <font>
                                 <Font name="System Bold" size="20.0" />
                             </font>
                         </Label>
                         
                         <GridPane hgap="20" vgap="15">
-                            <Label text="IP Validation:" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                                <font><Font name="System Bold" size="14.0" /></font>
-                            </Label>
-                            <Label fx:id="ipValidationLabel" text="PENDING" textFill="#F7931E"
-                                   GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                <font><Font name="System Bold" size="14.0" /></font>
-                            </Label>
+                            <!-- IP Validation -->
+                            <HBox alignment="CENTER_LEFT" spacing="10" GridPane.columnIndex="0" GridPane.rowIndex="0"
+                                  style="-fx-background-color: linear-gradient(to right, #E3F2FD, #FFF3E0); -fx-padding: 15; -fx-background-radius: 10; -fx-border-color: #1976D2; -fx-border-width: 2; -fx-border-radius: 10;">
+                                <Label text="IP Validation:" style="-fx-text-fill: #000000; -fx-font-weight: bold;">
+                                    <font><Font name="System Bold" size="14.0" /></font>
+                                </Label>
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label fx:id="ipValidationLabel" text="PENDING" 
+                                       style="-fx-background-color: #FFA726; -fx-text-fill: white; -fx-padding: 5 15; -fx-background-radius: 15; -fx-font-weight: bold;">
+                                    <font><Font name="System Bold" size="14.0" /></font>
+                                </Label>
+                            </HBox>
 
-                            <Label text="Port Validation:" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                                <font><Font name="System Bold" size="14.0" /></font>
-                            </Label>
-                            <Label fx:id="portValidationLabel" text="PENDING" textFill="#F7931E"
-                                   GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                <font><Font name="System Bold" size="14.0" /></font>
-                            </Label>
+                            <!-- Port Validation -->
+                            <HBox alignment="CENTER_LEFT" spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="0"
+                                  style="-fx-background-color: linear-gradient(to right, #E3F2FD, #FFF3E0); -fx-padding: 15; -fx-background-radius: 10; -fx-border-color: #1976D2; -fx-border-width: 2; -fx-border-radius: 10;">
+                                <Label text="Port Validation:" style="-fx-text-fill: #000000; -fx-font-weight: bold;">
+                                    <font><Font name="System Bold" size="14.0" /></font>
+                                </Label>
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label fx:id="portValidationLabel" text="PENDING" 
+                                       style="-fx-background-color: #FFA726; -fx-text-fill: white; -fx-padding: 5 15; -fx-background-radius: 15; -fx-font-weight: bold;">
+                                    <font><Font name="System Bold" size="14.0" /></font>
+                                </Label>
+                            </HBox>
 
-                            <Label text="Protocol Check:" GridPane.columnIndex="0" GridPane.rowIndex="2">
-                                <font><Font name="System Bold" size="14.0" /></font>
-                            </Label>
-                            <Label fx:id="protocolCheckLabel" text="PENDING" textFill="#F7931E"
-                                   GridPane.columnIndex="1" GridPane.rowIndex="2">
-                                <font><Font name="System Bold" size="14.0" /></font>
-                            </Label>
+                            <!-- Protocol Check -->
+                            <HBox alignment="CENTER_LEFT" spacing="10" GridPane.columnIndex="0" GridPane.rowIndex="1"
+                                  style="-fx-background-color: linear-gradient(to right, #E3F2FD, #FFF3E0); -fx-padding: 15; -fx-background-radius: 10; -fx-border-color: #1976D2; -fx-border-width: 2; -fx-border-radius: 10;">
+                                <Label text="Protocol Check:" style="-fx-text-fill: #000000; -fx-font-weight: bold;">
+                                    <font><Font name="System Bold" size="14.0" /></font>
+                                </Label>
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label fx:id="protocolCheckLabel" text="PENDING" 
+                                       style="-fx-background-color: #FFA726; -fx-text-fill: white; -fx-padding: 5 15; -fx-background-radius: 15; -fx-font-weight: bold;">
+                                    <font><Font name="System Bold" size="14.0" /></font>
+                                </Label>
+                            </HBox>
 
-                            <Label text="Overall Status:" GridPane.columnIndex="0" GridPane.rowIndex="3">
-                                <font><Font name="System Bold" size="16.0" /></font>
-                            </Label>
-                            <Label fx:id="overallStatusLabel" text="NOT FILTERED" textFill="#95A5A6"
-                                   GridPane.columnIndex="1" GridPane.rowIndex="3">
-                                <font><Font name="System Bold" size="16.0" /></font>
-                            </Label>
+                            <!-- Overall Status -->
+                            <VBox alignment="CENTER" spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="1"
+                                  style="-fx-background-color: linear-gradient(to right, #E3F2FD, #FFF3E0); -fx-padding: 15; -fx-background-radius: 10; -fx-border-color: #FF6F00; -fx-border-width: 3; -fx-border-radius: 10;">
+                                <Label text="Overall Status:" style="-fx-text-fill: #000000; -fx-font-weight: bold;">
+                                    <font><Font name="System Bold" size="14.0" /></font>
+                                </Label>
+                                <Label fx:id="overallStatusLabel" text="NOT FILTERED" 
+                                       style="-fx-text-fill: #95A5A6; -fx-font-weight: bold;">
+                                    <font><Font name="System Bold" size="16.0" /></font>
+                                </Label>
+                            </VBox>
+
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="50" />
+                                <ColumnConstraints percentWidth="50" />
+                            </columnConstraints>
+                            <rowConstraints>
+                                <RowConstraints />
+                                <RowConstraints />
+                            </rowConstraints>
                         </GridPane>
 
-                        <Separator style="-fx-background-color: #4ECDC4;" />
+                        <Separator style="-fx-background-color: linear-gradient(to right, #1976D2, #FF6F00); -fx-padding: 2;" />
 
-                        <Label text="📋 Filter Details" textFill="#44A08D">
+                        <Label text="📋 Filter Details" textFill="#FF6F00">
                             <font>
                                 <Font name="System Bold" size="16.0" />
                             </font>
                         </Label>
-                        <TextArea fx:id="filterDetailsArea" editable="false" prefHeight="150.0"
-                                 style="-fx-background-color: #F5F5F5; -fx-font-family: 'Courier New'; -fx-font-size: 12; -fx-background-radius: 8;"
+                        <TextArea fx:id="filterDetailsArea" editable="false" prefHeight="200.0"
+                                 style="-fx-control-inner-background: #F5F5F5; -fx-text-fill: #000000; -fx-font-family: 'Courier New'; -fx-font-size: 12; -fx-background-radius: 8; -fx-border-color: #FF6F00; -fx-border-width: 2; -fx-border-radius: 8;"
                                  promptText="Filtering details will appear here..." />
                     </VBox>
 
@@ -114,14 +142,14 @@
 
         <!-- BOTTOM -->
         <bottom>
-            <HBox alignment="CENTER" spacing="20.0" style="-fx-background-color: #1a1a2e;">
+            <HBox alignment="CENTER" spacing="20.0" style="-fx-background-color: #263238;">
                 <padding>
                     <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                 </padding>
                 <Button fx:id="backBtn" text="← BACK" prefWidth="150" prefHeight="45"
-                        style="-fx-background-color: #16213e; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-font-size: 14;" />
+                        style="-fx-background-color: #455A64; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-font-size: 14;" />
                 <Button fx:id="analyzeBtn" text="➡️ DEEP ANALYSIS" prefWidth="200" prefHeight="45"
-                        style="-fx-background-color: linear-gradient(to right, #4ECDC4, #44A08D); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-font-size: 14; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 3);" />
+                        style="-fx-background-color: linear-gradient(to right, #1976D2, #FF6F00); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-font-size: 14; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 3);" />
             </HBox>
         </bottom>
     </BorderPane>
