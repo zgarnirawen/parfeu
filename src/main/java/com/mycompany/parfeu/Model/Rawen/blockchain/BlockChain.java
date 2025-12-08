@@ -7,58 +7,77 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Gere l'ensemble de la blockchain du pare-feu.
- * VERSION AVEC RESTAURATION depuis historique CSV.
- * 
- * @author ZGARNI
+ * 🔥 VERSION FINALE - Gère correctement le Genesis restauré
  */
 public class BlockChain {
     private final LinkedList<Block> chain;
     private int blockIndex;
+    private boolean isRestoring = false;  // 🔥 NOUVEAU : Flag de restauration
 
-    /**
-     * Constructeur initialisant la blockchain avec le bloc genesis.
-     */
     public BlockChain() {
         chain = new LinkedList<>();
         blockIndex = 0;
         
-        // Bloc d'origine ("Genesis Block")
-        Block genesis = new Block(blockIndex++, new ArrayList<>(), "0");
-        chain.add(genesis);
-        System.out.println("Blockchain initialisee avec le bloc genesis");
+        // 🔥 NE PAS créer le Genesis maintenant
+        // Il sera créé lors de la première restauration OU lors du premier ajout
     }
 
     /**
-     * Ajoute un nouveau bloc contenant des decisions.
-     * @param decisions liste des decisions a stocker
+     * Ajoute un nouveau bloc contenant des décisions.
      */
     public void addBlock(List<DecisionResult> decisions) {
         if (decisions == null || decisions.isEmpty()) {
-            System.out.println("Aucune decision a ajouter");
+            System.out.println("Aucune décision à ajouter");
             return;
+        }
+        
+        // 🔥 Créer le Genesis si la chaîne est vide
+        if (chain.isEmpty()) {
+            Block genesis = new Block(blockIndex++, new ArrayList<>(), "0");
+            chain.add(genesis);
+            System.out.println("✓ Genesis créé : " + genesis.hash());
         }
         
         String previousHash = chain.getLast().hash();
         Block newBlock = new Block(blockIndex++, decisions, previousHash);
         chain.add(newBlock);
-        System.out.println("Nouveau bloc ajoute : " + newBlock);
+        System.out.println("✓ Nouveau bloc ajouté : #" + newBlock.index());
     }
 
     /**
-     * Ajoute une seule decision (helper method).
-     * @param decision decision a stocker
+     * Ajoute une seule décision (helper method).
      */
     public void addDecision(DecisionResult decision) {
         addBlock(List.of(decision));
     }
 
     /**
-     * 🔥 NOUVELLE MÉTHODE : Restaure un bloc depuis l'historique CSV.
-     * Cette méthode ajoute un bloc déjà construit (avec son hash original)
-     * sans recalculer le hash.
-     * 
-     * @param block bloc à restaurer
+     * 🔥 Démarre la restauration depuis CSV
+     */
+    public void startRestoration() {
+        isRestoring = true;
+        chain.clear();  // Vider complètement la chaîne
+        blockIndex = 0;
+        System.out.println("🔄 Mode restauration activé");
+    }
+
+    /**
+     * 🔥 Termine la restauration
+     */
+    public void finishRestoration() {
+        isRestoring = false;
+        System.out.println("✅ Mode restauration terminé");
+        
+        // Si aucun bloc restauré, créer le Genesis
+        if (chain.isEmpty()) {
+            Block genesis = new Block(blockIndex++, new ArrayList<>(), "0");
+            chain.add(genesis);
+            System.out.println("✓ Genesis créé (aucun bloc restauré)");
+        }
+    }
+
+    /**
+     * 🔥 RESTAURE un bloc depuis l'historique CSV.
      */
     public void restoreBlock(Block block) {
         if (block == null) {
@@ -66,65 +85,57 @@ public class BlockChain {
             return;
         }
         
-        // Skip le genesis si déjà présent
-        if (block.index() == 0 && chain.size() > 0) {
-            System.out.println("  ⏭️ Genesis déjà présent, bloc skippé");
-            return;
-        }
-        
-        // Ajouter le bloc à la chaîne
+        // 🔥 Ajouter TOUS les blocs, y compris le Genesis
         chain.add(block);
         
-        // Mettre à jour l'index pour les futurs blocs
+        // Mettre à jour l'index
         if (block.index() >= blockIndex) {
             blockIndex = block.index() + 1;
         }
         
-        System.out.println("  ✓ Bloc restauré: #" + block.index() + 
-                         " | " + block.srcIP() + " -> " + block.destIP());
+        // Afficher les détails
+        if (block.index() == 0) {
+            System.out.println("  ✓ Genesis restauré: hash=" + 
+                             block.hash().substring(0, 16) + "...");
+        } else {
+            System.out.println("  ✓ Bloc #" + block.index() + " restauré | " +
+                             block.srcIP() + " -> " + block.destIP() + 
+                             " | Action: " + block.action());
+        }
     }
 
     /**
-     * Verifie l'integrite de la chaine.
-     * @return true si la chaine est valide, false sinon
+     * 🔥 Vérifie l'intégrité de la chaîne
      */
     public boolean isChainValid() {
+        if (chain.isEmpty()) {
+            System.out.println("⚠️ Blockchain vide");
+            return true;
+        }
+        
         Block previous = null;
+        
         for (Block current : chain) {
             if (previous != null) {
-                // Verifier que le previousHash correspond
+                // Vérifier que previousHash correspond
                 if (!current.previousHash().equals(previous.hash())) {
-                    System.err.println("Chaine invalide entre bloc " + 
-                        previous.index() + " et " + current.index());
+                    System.err.println("❌ Chaîne invalide entre bloc #" + 
+                        previous.index() + " et #" + current.index());
+                    System.err.println("   Bloc #" + previous.index() + " hash    : " + previous.hash());
+                    System.err.println("   Bloc #" + current.index() + " prevHash: " + current.previousHash());
+                    System.err.println("   🔍 Les hash ne correspondent pas !");
                     return false;
                 }
-                
-                // Pour les blocs restaurés depuis CSV (fromCSV = true),
-                // on ne vérifie PAS le hash car il est déjà validé
-                // Pour les nouveaux blocs, on vérifie
-                // Note: Block est un record, on ne peut pas ajouter de champ fromCSV
-                // donc on skip la vérification du hash pour tous les blocs
             }
             previous = current;
         }
-        System.out.println("Blockchain valide");
+        
+        System.out.println("✅ Blockchain valide - " + chain.size() + " blocs vérifiés");
         return true;
     }
 
     /**
-     * Recalcule le hash d'un bloc pour verification.
-     */
-    private String calculateBlockHash(Block block) {
-        // Utilise la meme methode que Block.calculateHash()
-        return new Block(
-            block.index(), 
-            block.decisions(), 
-            block.previousHash()
-        ).hash();
-    }
-
-    /**
-     * Affiche toute la blockchain.
+     * Affiche toute la blockchain avec détails.
      */
     public void printChain() {
         System.out.println("\n========================================");
@@ -134,11 +145,14 @@ public class BlockChain {
         System.out.println();
         
         for (Block block : chain) {
-            System.out.println(block);
+            System.out.println("Bloc #" + block.index());
+            System.out.println("  Hash     : " + block.hash().substring(0, 32) + "...");
+            System.out.println("  PrevHash : " + block.previousHash());
+            System.out.println("  Action   : " + block.action());
+            
             if (!block.decisions().isEmpty()) {
-                System.out.println("  Decisions contenues :");
                 for (DecisionResult decision : block.decisions()) {
-                    System.out.println("    - " + decision.getAction() + 
+                    System.out.println("  Decision : " + decision.getAction() + 
                         " (score: " + decision.getTotalScore() + ")");
                 }
             }
@@ -148,8 +162,7 @@ public class BlockChain {
     }
 
     /**
-     * Retourne une copie de la chaine.
-     * @return liste des blocs
+     * Retourne une copie de la chaîne.
      */
     public List<Block> getChain() {
         return new ArrayList<>(chain);
@@ -157,23 +170,25 @@ public class BlockChain {
 
     /**
      * Retourne le dernier bloc.
-     * @return dernier bloc de la chaine
      */
     public Block getLastBlock() {
+        if (chain.isEmpty()) {
+            // Créer le Genesis si nécessaire
+            Block genesis = new Block(blockIndex++, new ArrayList<>(), "0");
+            chain.add(genesis);
+        }
         return chain.getLast();
     }
 
     /**
      * Retourne le nombre de blocs.
-     * @return taille de la chaine
      */
     public int getSize() {
         return chain.size();
     }
     
     /**
-     * 🔥 NOUVELLE MÉTHODE : Efface tous les blocs sauf le genesis
-     * Utile pour les tests ou le reset complet
+     * Efface tous les blocs sauf le genesis.
      */
     public void clear() {
         chain.clear();
@@ -183,6 +198,6 @@ public class BlockChain {
         Block genesis = new Block(blockIndex++, new ArrayList<>(), "0");
         chain.add(genesis);
         
-        System.out.println("Blockchain réinitialisée au bloc genesis");
+        System.out.println("✓ Blockchain réinitialisée avec Genesis");
     }
 }

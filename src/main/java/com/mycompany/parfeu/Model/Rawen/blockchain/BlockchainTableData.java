@@ -5,7 +5,7 @@ import java.util.Date;
 
 /**
  * Classe de données pour l'affichage dans le TableView.
- * 🔥 VERSION CORRIGÉE : Affiche les décisions textuelles au lieu du nombre
+ 
  */
 public class BlockchainTableData {
     
@@ -15,10 +15,10 @@ public class BlockchainTableData {
     private final String destIP;
     private final String protocol;
     private final int decisionsCount;
-    private final String decisions;  // 🔥 NOUVEAU : Texte des décisions
+    private final String decisions;  
     private final String hashShort;
     private final String hashFull;
-    private final boolean isGenesis;  // 🔥 NOUVEAU : Flag pour Genesis
+    private final boolean isGenesis;  
 
     public BlockchainTableData(Block block) {
         this.index = block.index();
@@ -32,10 +32,10 @@ public class BlockchainTableData {
         this.protocol = block.protocol();
         this.decisionsCount = block.decisions().size();
         
-        // 🔥 NOUVEAU : Extraire les actions des décisions
+        //  Extraire les actions des décisions
         this.decisions = block.getDecisionActions();
         
-        // 🔥 NOUVEAU : Détecter le Genesis
+        //  Détecter le Genesis
         this.isGenesis = block.index() == 0 && "0.0.0.0".equals(block.srcIP());
         
         // Hash tronqué
@@ -43,7 +43,6 @@ public class BlockchainTableData {
         this.hashFull = hash;
         this.hashShort = truncateHash(hash);
         
-        // 🔥 DEBUG
         System.out.println("BlockchainTableData créé: #" + index + 
                          " | " + srcIP + " -> " + destIP + 
                          " | " + protocol +
@@ -57,7 +56,6 @@ public class BlockchainTableData {
         return hash.substring(0, 8) + "..." + hash.substring(hash.length() - 8);
     }
 
-    // 🔥 GETTERS PUBLICS (OBLIGATOIRE pour JavaFX PropertyValueFactory)
     public int getIndex() {
         return index;
     }
@@ -83,7 +81,7 @@ public class BlockchainTableData {
     }
 
     /**
-     * 🔥 NOUVEAU : Retourne le texte des décisions pour affichage
+       Retourne le texte des décisions pour affichage
      */
     public String getDecisions() {
         if (isGenesis) {

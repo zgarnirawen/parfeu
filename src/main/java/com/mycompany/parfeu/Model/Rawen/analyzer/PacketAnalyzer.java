@@ -49,15 +49,15 @@ public class PacketAnalyzer {
     public List<DetectionSignal> analyze(Packet packet) {
         List<DetectionSignal> signals = new ArrayList<>();
 
-        // 1. Détection par taille
+        // Détection par taille
         SizeSignal sizeSig = SizeSignal.analyze(packet, minSize, maxSize);
         if (sizeSig != null) signals.add(sizeSig);
 
-        // 2. Détection par mots suspects (avec Stream + Lambda)
+        // Détection par mots suspects (avec Stream + Lambda)
         WordPatternSignal wordSig = WordPatternSignal.analyze(packet, suspiciousWords);
         if (wordSig != null) signals.add(wordSig);
 
-        // 3. Analyse heuristique
+        // Analyse heuristique
         HeuristicSignal heurSig = HeuristicSignal.analyze(packet);
         if (heurSig != null) signals.add(heurSig);
 
@@ -72,8 +72,8 @@ public class PacketAnalyzer {
      * @return score total
      */
     public int calculateTotalScore(List<DetectionSignal> signals) {
-        return signals.stream()                      // ✅ STREAM
-                .mapToInt(DetectionSignal::getScore) // ✅ METHOD REFERENCE
-                .sum();                              // ✅ TERMINAL OPERATION
+        return signals.stream()                      //  STREAM
+                .mapToInt(DetectionSignal::getScore) //  METHOD REFERENCE
+                .sum();                              // TERMINAL OPERATION
     }
 }

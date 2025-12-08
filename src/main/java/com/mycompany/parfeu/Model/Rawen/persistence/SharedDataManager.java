@@ -15,9 +15,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 🔥 VERSION FINALE CORRIGÉE - Parsing CSV robuste avec détection des problèmes
- */
 public final class SharedDataManager {
     
     private static SharedDataManager instance;
@@ -40,7 +37,7 @@ public final class SharedDataManager {
             tempStorage = new StorageManager();
             this.blockchain = new BlockChain();
             
-            // 🔥 CHARGEMENT IMMÉDIAT DE TOUTES LES DONNÉES
+            // Chargement des données
             loadAllData(tempStorage);
             
             System.out.println("✅ SharedDataManager prêt\n");
@@ -75,7 +72,7 @@ public final class SharedDataManager {
     }
     
     /**
-     * 🔥 CHARGEMENT COMPLET - IMMÉDIAT AU DÉMARRAGE
+     * Chargement complet au démarrage
      */
     private void loadAllData(StorageManager storage) {
         System.out.println("🔄 Chargement des données persistantes...\n");
@@ -89,8 +86,6 @@ public final class SharedDataManager {
                 configuration = storage.loadConfiguration();
                 if (configuration != null) {
                     System.out.println("  ✅ Configuration chargée");
-                    System.out.println("     - Seuil blocage: " + configuration.getBlockThreshold());
-                    System.out.println("     - Seuil alerte: " + configuration.getAlertThreshold());
                 } else {
                     configuration = new FirewallConfig();
                     System.out.println("  ℹ️  Configuration par défaut");
@@ -100,7 +95,7 @@ public final class SharedDataManager {
                 System.out.println("  ⚠️  Configuration par défaut");
             }
             
-            // 2️⃣ BLOCKCHAIN (RECONSTRUCTION DEPUIS CSV)
+            // 2️⃣ BLOCKCHAIN
             System.out.println("\n🔗 2. Blockchain...");
             reconstructBlockchainFromCSV(storage);
             
@@ -109,6 +104,7 @@ public final class SharedDataManager {
             System.out.println("  ✅ Total paquets: " + statistics.getTotalPackets());
             System.out.println("  ✅ Acceptés: " + statistics.getAcceptedPackets());
             System.out.println("  ✅ Bloqués: " + statistics.getDroppedPackets());
+            System.out.println("  ✅ Alertes: " + statistics.getAlertedPackets());
             
             isReconstructing = false;
             System.out.println("\n✅ Chargement terminé avec succès!");
@@ -121,38 +117,56 @@ public final class SharedDataManager {
     }
     
     /**
-     * 🔥 RECONSTRUCTION BLOCKCHAIN - VERSION ULTRA-ROBUSTE
+     * 🔥 RECONSTRUCTION BLOCKCHAIN - Restaure le Genesis depuis CSV
      */
     private void reconstructBlockchainFromCSV(StorageManager storage) {
         try {
-            // 🔥 UTILISER LA NOUVELLE MÉTHODE DE PARSING ROBUSTE
             List<StorageManager.BlockData> blocks = storage.loadBlockHistory();
             
             if (blocks.isEmpty()) {
-                System.out.println("  ℹ️  Blockchain vide (genesis uniquement)");
+                System.out.println("  ℹ️  Aucun historique, création du Genesis");
+                blockchain.clear();  // Créera le Genesis
                 return;
             }
             
             System.out.println("  📂 " + blocks.size() + " blocs trouvés dans le CSV");
             
-            int reconstructed = 0;
-            int skipped = 0;
+            //  DÉMARRER la restauration (vide la chaîne)
+            blockchain.startRestoration();
+            
+            int restored = 0;
             int errors = 0;
             
             for (StorageManager.BlockData blockData : blocks) {
-                
-                // Skip Genesis (déjà créé par BlockChain constructor)
-                if (blockData.index == 0 && "0.0.0.0".equals(blockData.srcIP)) {
-                    System.out.println("  ⏭️  Genesis bloc skippé (index 0)");
-                    skipped++;
-                    continue;
-                }
-                
                 try {
-                    // 🔥 PARSING DU TIMESTAMP AVEC PLUSIEURS FORMATS
                     LocalDateTime packetTimestamp = parseTimestamp(blockData.packetTimestamp);
                     
-                    // Créer un paquet pour la décision
+                    //  RESTAURER LE GENESIS tel quel depuis le CSV
+                    if (blockData.index == 0) {
+                        Block genesisBlock = new Block(
+                            blockData.index,
+                            new ArrayList<>(),
+                            blockData.previousHash,
+                            blockData.timestamp,
+                            blockData.hash,  // Hash original du CSV
+                            blockData.srcIP,
+                            blockData.destIP,
+                            blockData.srcPort,
+                            blockData.destPort,
+                            blockData.protocol,
+                            blockData.protocol,
+                            blockData.size,
+                            packetTimestamp,
+                            blockData.action,
+                            true  // fromCSV
+                        );
+                        
+                        blockchain.restoreBlock(genesisBlock);
+                        restored++;
+                        continue;
+                    }
+                    
+                    // Créer un paquet pour les autres blocs
                     Packet packet = new PaquetSimple(
                         blockData.srcIP,
                         blockData.destIP,
@@ -163,22 +177,31 @@ public final class SharedDataManager {
                         packetTimestamp
                     );
                     
-                    // Créer une décision fictive pour les stats
+                    // Convertir l'action
+                    com.mycompany.parfeu.Model.Rawen.decision.Action action;
+                    try {
+                        action = Actions.fromString(blockData.action);
+                    } catch (IllegalArgumentException e) {
+                        System.err.println("  ⚠️  Action invalide: " + blockData.action);
+                        action = Actions.LOG;
+                    }
+                    
+                    // Créer la décision
                     DecisionResult decision = new DecisionResult(
                         packet,
                         new ArrayList<>(),
                         0,
-                        Actions.LOG,
+                        action,
                         "Restored from blockchain"
                     );
                     
-                    // 🔥 CRÉER LE BLOC AVEC LE HASH ORIGINAL (fromCSV = true)
+                    // Créer le bloc avec hash original
                     Block restoredBlock = new Block(
                         blockData.index,
                         List.of(decision),
                         blockData.previousHash,
                         blockData.timestamp,
-                        blockData.hash,          // 🔥 HASH ORIGINAL
+                        blockData.hash,  //  Hash original
                         blockData.srcIP,
                         blockData.destIP,
                         blockData.srcPort,
@@ -187,23 +210,14 @@ public final class SharedDataManager {
                         "Restored",
                         blockData.size,
                         packetTimestamp,
-                        true  // 🔥 fromCSV = true (ne pas recalculer)
+                        blockData.action,
+                        true
                     );
                     
-                    // 🔥 UTILISER LA NOUVELLE MÉTHODE restoreBlock()
                     blockchain.restoreBlock(restoredBlock);
-                    
-                    // Enregistrer dans les stats
                     statistics.recordDecision(decision);
                     
-                    reconstructed++;
-                    
-                    // Afficher les 3 premiers blocs
-                    if (reconstructed <= 3) {
-                        System.out.println("  ✓ Bloc #" + blockData.index + " : " + 
-                                         blockData.srcIP + " -> " + blockData.destIP + 
-                                         " (" + blockData.protocol + ")");
-                    }
+                    restored++;
                     
                 } catch (Exception e) {
                     errors++;
@@ -211,19 +225,23 @@ public final class SharedDataManager {
                 }
             }
             
-            // 🔥 RAPPORT DÉTAILLÉ
+            //  TERMINER la restauration
+            blockchain.finishRestoration();
+            
+            // Rapport
             System.out.println("\n  📊 Rapport de reconstruction:");
             System.out.println("     - Blocs dans CSV: " + blocks.size());
-            System.out.println("     - Blocs skippés (genesis): " + skipped);
-            System.out.println("     - Blocs reconstruits: " + reconstructed);
+            System.out.println("     - Blocs restaurés: " + restored);
             System.out.println("     - Erreurs: " + errors);
-            System.out.println("     - Blockchain.getSize(): " + blockchain.getSize() + " blocs");
-            System.out.println("     - Blockchain.getChain().size(): " + blockchain.getChain().size() + " blocs");
+            System.out.println("     - Blockchain.getSize(): " + blockchain.getSize());
             
-            if (reconstructed > 0) {
-                System.out.println("  ✅ Blockchain restaurée avec succès!");
+            //VÉRIFICATION automatique
+            boolean valid = blockchain.isChainValid();
+            if (valid) {
+                System.out.println("  ✅ Blockchain restaurée et VALIDE!");
             } else {
-                System.out.println("  ⚠️  Aucun bloc restauré (vérifiez le format CSV)");
+                System.out.println("  ❌ Blockchain restaurée mais INVALIDE!");
+                blockchain.printChain();  // Afficher les détails
             }
             
         } catch (DatabaseException e) {
@@ -233,14 +251,13 @@ public final class SharedDataManager {
     }
     
     /**
-     * 🔥 PARSING ROBUSTE DU TIMESTAMP avec plusieurs formats
+     * Parsing robuste du timestamp
      */
     private LocalDateTime parseTimestamp(String timestampStr) {
         if (timestampStr == null || timestampStr.trim().isEmpty()) {
             return LocalDateTime.now();
         }
         
-        // Liste des formats à essayer (du plus précis au moins précis)
         DateTimeFormatter[] formatters = {
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS"),
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS"),
@@ -257,13 +274,12 @@ public final class SharedDataManager {
             }
         }
         
-        // Fallback : timestamp actuel
         System.err.println("  ⚠️  Impossible de parser timestamp: " + timestampStr);
         return LocalDateTime.now();
     }
     
     /**
-     * 🔥 AJOUT D'UNE NOUVELLE DÉCISION
+     * Ajout d'une nouvelle décision
      */
     public void addDecision(DecisionResult decision) {
         if (isReconstructing) {
@@ -274,11 +290,11 @@ public final class SharedDataManager {
         
         try {
             System.out.println("\n💾 Nouvelle décision...");
+            System.out.println("   Action: " + decision.getAction());
             
             blockchain.addDecision(decision);
             statistics.recordDecision(decision);
             
-            // 🔥 SAUVEGARDER IMMÉDIATEMENT
             saveAllData();
             
             System.out.println("✅ Décision sauvegardée\n");
@@ -290,10 +306,9 @@ public final class SharedDataManager {
     }
     
     /**
-     * 🔥 SAUVEGARDE COMPLÈTE
+     * Sauvegarde complète
      */
     private void saveAllData() throws DatabaseException {
-        // Sauvegarder TOUS les blocs
         List<Block> chain = blockchain.getChain();
         if (!chain.isEmpty()) {
             storage.clearHistory();
@@ -302,17 +317,15 @@ public final class SharedDataManager {
             }
         }
         
-        // Sauvegarder les statistiques
         storage.saveStatistics(statistics);
         
-        // Sauvegarder la configuration
         if (configuration != null) {
             storage.saveConfiguration(configuration);
         }
     }
     
     /**
-     * 🔥 SAUVEGARDE CONFIGURATION EXPLICITE
+     * Sauvegarde configuration explicite
      */
     public void saveConfiguration(FirewallConfig config) {
         try {
@@ -345,6 +358,7 @@ public final class SharedDataManager {
         try {
             statistics.reset();
             blockchain = new BlockChain();
+            blockchain.clear();
             storage.clearAll();
             configuration = new FirewallConfig();
             System.out.println("✓ Reset complet");
@@ -362,9 +376,11 @@ public final class SharedDataManager {
         System.out.println("║                 ÉTAT DU SYSTÈME                          ║");
         System.out.println("╚══════════════════════════════════════════════════════════╝");
         System.out.println("🔗 Blockchain    : " + blockchain.getSize() + " blocs");
+        System.out.println("   Status        : " + (blockchain.isChainValid() ? "✅ VALIDE" : "❌ INVALIDE"));
         System.out.println("📊 Paquets       : " + statistics.getTotalPackets());
         System.out.println("   ✓ Acceptés    : " + statistics.getAcceptedPackets());
         System.out.println("   ✗ Bloqués     : " + statistics.getDroppedPackets());
+        System.out.println("   ⚠ Alertes     : " + statistics.getAlertedPackets());
         System.out.println("⚙️  Configuration :");
         System.out.println("   - Seuil blocage: " + configuration.getBlockThreshold());
         System.out.println("   - Seuil alerte : " + configuration.getAlertThreshold());

@@ -20,31 +20,30 @@ public interface ILogEntry {
      */
     String getType();
     
-    // ========== MÉTHODES DEFAULT ==========
-    
+   
     /**
-     * Timestamp du log (doit être overridé).
+     * Timestamp du log 
      */
     default String getTimestamp() {
         return java.time.LocalDateTime.now().toString();
     }
     
     /**
-     * IP source (doit être overridée).
+     * IP source 
      */
     default String getSourceIP() {
         return "0.0.0.0";
     }
     
     /**
-     * IP destination (doit être overridée).
+     * IP destination 
      */
     default String getDestinationIP() {
         return "0.0.0.0";
     }
     
     /**
-     * Représentation textuelle (peut être overridée).
+     * Représentation textuelle .
      */
     default String toLogString() {
         return String.format("[%s] %s | %s -> %s",

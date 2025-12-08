@@ -14,11 +14,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
-/**
- * 🔥 VERSION CORRIGÉE - Parsing CSV robuste avec gestion des virgules
- */
+
 public final class StorageManager {
     
     private static final String DATA_DIR = "firewall_data";
@@ -70,10 +67,10 @@ public final class StorageManager {
         }
     }
 
-    // ========== GESTION HISTORIQUE BLOCS - 🔥 PARSING CORRIGÉ ==========
+    // ========== GESTION HISTORIQUE BLOCS ==========
 
     /**
-     * 🔥 NOUVEAU : Parse une ligne CSV en gérant les virgules dans les timestamps
+     *  Parse une ligne CSV en gérant les virgules dans les timestamps
      */
     private String[] parseCSVLine(String line) {
         List<String> result = new ArrayList<>();
@@ -100,7 +97,7 @@ public final class StorageManager {
     }
 
     /**
-     * 🔥 CORRIGÉ : Sauvegarde avec guillemets autour des timestamps
+     *  Sauvegarde avec guillemets autour des timestamps et ACTION
      */
     public void saveBlockToHistory(Block block) throws DatabaseException {
         Path historyPath = dataDirectory.resolve(HISTORY_FILE);
@@ -111,8 +108,8 @@ public final class StorageManager {
                     StandardCharsets.UTF_8
                 ))) {
             
-            // Format avec guillemets autour du timestamp
-            String csvLine = String.format("%d,%s,%s,%d,%d,%s,%d,%d,\"%s\",%s,%s",
+            // Format avec guillemets autour du timestamp et action
+            String csvLine = String.format("%d,%s,%s,%d,%d,%s,%d,%d,\"%s\",%s,%s,%s",
                 block.index(),
                 block.srcIP(),
                 block.destIP(),
@@ -121,15 +118,16 @@ public final class StorageManager {
                 block.protocol(),
                 block.size(),
                 block.timestamp(),
-                block.packetTimestamp().toString(),  // 🔥 Guillemets pour le timestamp
+                block.packetTimestamp().toString(),
                 block.previousHash(),
-                block.hash()
+                block.hash(),
+                block.action()  // ACTION
             );
             
             writer.write(csvLine);
             writer.newLine();
             
-            System.out.println("✓ Bloc #" + block.index() + " sauvegardé dans l'historique");
+            System.out.println("✓ Bloc #" + block.index() + " sauvegardé | Action: " + block.action());
             
         } catch (IOException e) {
             throw new DatabaseException("Erreur lors de la sauvegarde du bloc", e);
@@ -137,7 +135,7 @@ public final class StorageManager {
     }
 
     /**
-     * 🔥 CORRIGÉ : Retourne des objets structurés au lieu de lignes brutes
+     Retourne des objets structurés avec ACTION
      */
     public List<BlockData> loadBlockHistory() throws DatabaseException {
         Path historyPath = dataDirectory.resolve(HISTORY_FILE);
@@ -164,11 +162,22 @@ public final class StorageManager {
                 }
                 
                 try {
-                    String[] parts = parseCSVLine(line);  // 🔥 Parsing robuste
+                    String[] parts = parseCSVLine(line);
                     
+                    // COMPATIBILITÉ : Ancien format (11 colonnes) vs nouveau (12 colonnes)
                     if (parts.length < 11) {
                         System.err.println("⚠️ Ligne invalide (colonnes: " + parts.length + "): " + line);
                         continue;
+                    }
+                    
+                    String action = "LOG";  // Valeur par défaut
+                    
+                    if (parts.length >= 12) {
+                        // Nouveau format avec action
+                        action = parts[11];
+                    } else {
+                        // Ancien format, utiliser LOG par défaut
+                        System.out.println("  ⚠️ Ancien format détecté pour bloc #" + parts[0] + ", action=LOG par défaut");
                     }
                     
                     BlockData blockData = new BlockData(
@@ -182,7 +191,8 @@ public final class StorageManager {
                         Long.parseLong(parts[7]),        // timestamp
                         parts[8],                         // packetTimestamp
                         parts[9],                         // previousHash
-                        parts[10]                         // hash
+                        parts[10],                        // hash
+                        action                            // 🔥 action
                     );
                     
                     blocks.add(blockData);
@@ -226,7 +236,7 @@ public final class StorageManager {
     // ========== CLASSE INTERNE POUR DONNÉES DE BLOC ==========
     
     /**
-     * 🔥 NOUVEAU : Objet structuré pour les données de bloc
+      Objet structuré pour les données de bloc avec ACTION
      */
     public static class BlockData {
         public final int index;
@@ -240,10 +250,12 @@ public final class StorageManager {
         public final String packetTimestamp;
         public final String previousHash;
         public final String hash;
+        public final String action;  //  ACTION
         
         public BlockData(int index, String srcIP, String destIP, int srcPort, 
                         int destPort, String protocol, int size, long timestamp,
-                        String packetTimestamp, String previousHash, String hash) {
+                        String packetTimestamp, String previousHash, String hash,
+                        String action) {
             this.index = index;
             this.srcIP = srcIP;
             this.destIP = destIP;
@@ -255,6 +267,7 @@ public final class StorageManager {
             this.packetTimestamp = packetTimestamp;
             this.previousHash = previousHash;
             this.hash = hash;
+            this.action = action;
         }
     }
 

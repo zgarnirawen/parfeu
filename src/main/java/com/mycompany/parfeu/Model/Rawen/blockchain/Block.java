@@ -8,7 +8,6 @@ import java.util.List;
 
 /**
  * Block immuable avec informations complètes des paquets.
- * 🔥 VERSION CORRIGÉE : Support pour restauration depuis CSV sans recalcul de hash
  */
 public record Block(
     int index,
@@ -24,11 +23,12 @@ public record Block(
     String protocol,
     String payload,
     int size,
-    LocalDateTime packetTimestamp
+    LocalDateTime packetTimestamp,
+    String action  // Stocker l'action (ACCEPT, DROP, ALERT, LOG)
 ) {
 
     /**
-     * 🔥 NOUVEAU : Constructeur pour RESTAURATION depuis CSV
+     *  Constructeur pour RESTAURATION depuis CSV
      * Accepte le hash existant SANS le recalculer
      */
     public Block(
@@ -36,7 +36,7 @@ public record Block(
         List<DecisionResult> decisions,
         String previousHash,
         long timestamp,
-        String hash,  // 🔥 Hash depuis CSV
+        String hash,
         String srcIP,
         String destIP,
         int srcPort,
@@ -45,14 +45,15 @@ public record Block(
         String payload,
         int size,
         LocalDateTime packetTimestamp,
-        boolean fromCSV  // 🔥 Flag pour différencier la restauration
+        String action,
+        boolean fromCSV
     ) {
         this(
             index,
             Collections.unmodifiableList(decisions),
             previousHash,
             timestamp,
-            hash,  // 🔥 UTILISER le hash fourni
+            hash,
             srcIP,
             destIP,
             srcPort,
@@ -60,7 +61,8 @@ public record Block(
             protocol,
             payload,
             size,
-            packetTimestamp
+            packetTimestamp,
+            action
         );
     }
 
@@ -81,7 +83,8 @@ public record Block(
             extractProtocol(decisions),
             extractPayload(decisions),
             extractSize(decisions),
-            extractPacketTimestamp(decisions)
+            extractPacketTimestamp(decisions),
+            extractAction(decisions)
         );
     }
     
@@ -103,7 +106,8 @@ public record Block(
             "GENESIS",
             "Genesis Block",
             0,
-            LocalDateTime.now()
+            LocalDateTime.now(),
+            "NONE"
         );
     }
 
@@ -168,7 +172,17 @@ public record Block(
     }
 
     /**
-     * 🔥 NOUVELLE MÉTHODE : Extrait les actions des décisions pour affichage
+     *  Extrait l'action de la décision
+     */
+    private static String extractAction(List<DecisionResult> decisions) {
+        if (decisions.isEmpty()) {
+            return "NONE";
+        }
+        return decisions.get(0).getAction().toString();
+    }
+
+    /**
+     * Extrait les actions des décisions pour affichage
      */
     public String getDecisionActions() {
         if (decisions.isEmpty()) {
@@ -183,17 +197,17 @@ public record Block(
 
     @Override
     public String toString() {
-        return String.format("Block #%d [%s:%d -> %s:%d | %s | hash=%s, decisions=%d, timestamp=%d]",
-            index, srcIP, srcPort, destIP, destPort, protocol,
+        return String.format("Block #%d [%s:%d -> %s:%d | %s | action=%s | hash=%s, decisions=%d, timestamp=%d]",
+            index, srcIP, srcPort, destIP, destPort, protocol, action,
             hash.substring(0, Math.min(10, hash.length())) + "...", 
             decisions.size(), timestamp);
     }
     
     /**
-     * Convertit le bloc en format CSV pour historique.
+     Convertit le bloc en format CSV avec l'ACTION
      */
     public String toCSV() {
-        return String.format("%d,%s,%s,%d,%d,%s,%d,%d,%s,%s,%s",
+        return String.format("%d,%s,%s,%d,%d,%s,%d,%d,\"%s\",%s,%s,%s",
             index,
             srcIP,
             destIP,
@@ -202,16 +216,17 @@ public record Block(
             protocol,
             size,
             timestamp,
-            packetTimestamp,
+            packetTimestamp.toString(),
             previousHash,
-            hash
+            hash,
+            action
         );
     }
     
     /**
-     * En-tête CSV pour l'historique.
+     *  En-tête CSV avec colonne ACTION
      */
     public static String getCSVHeader() {
-        return "Index,Source IP,Destination IP,Source Port,Destination Port,Protocol,Size,Block Timestamp,Packet Timestamp,Previous Hash,Hash";
+        return "Index,Source IP,Destination IP,Source Port,Destination Port,Protocol,Size,Block Timestamp,Packet Timestamp,Previous Hash,Hash,Action";
     }
 }

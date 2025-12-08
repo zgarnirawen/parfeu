@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 /**
- * 🔥 VERSION FINALE - Chargement correct des données au démarrage
+ * 
  */
 public class BlockchainController implements Initializable {
 
@@ -121,7 +121,7 @@ public class BlockchainController implements Initializable {
             }
         });
         
-        // 🔥 STYLE DES COLONNES - Texte noir
+        //  STYLE DES COLONNES - Texte noir
         String columnStyle = "-fx-text-fill: black; -fx-alignment: CENTER;";
         colBlockIndex.setStyle(columnStyle);
         colTimestamp.setStyle(columnStyle);
