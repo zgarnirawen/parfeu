@@ -49,7 +49,6 @@ public sealed abstract class Packet implements IPaquet permits PaquetSimple, Paq
         return headerEstimate + payloadBytes;
     }
 
-    // ========== OVERRIDE DES MÉTHODES DEFAULT DE L'INTERFACE ==========
     
     @Override
     public String getSrcIP() { 
